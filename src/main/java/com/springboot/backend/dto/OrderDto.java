@@ -1,0 +1,39 @@
+package com.springboot.backend.dto;
+
+import com.springboot.backend.entity.BaseEntity;
+import lombok.Data;
+
+import java.util.Date;
+
+@Data
+public class OrderDto extends BaseEntity {
+
+    private String name;
+
+    private String code;
+
+    private String description;
+
+    private Date receivedDate;
+
+    private Date deliveryDate;
+
+    private Integer statusOrder;
+
+    private String reason;
+
+    private Integer status;
+
+    private String receivedAddress;
+
+    private Boolean isDelete;
+
+    private Long userId;
+
+    private String username;  // từ User liên kết
+
+    private Integer typePay;
+
+    private Integer statusPay;
+
+}
