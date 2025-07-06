@@ -10,8 +10,6 @@ import java.util.Date;
 
 @Entity
 @Data
-@Getter
-@Setter
 @Table(name = "tbl_order")
 public class Order extends BaseEntity{
 

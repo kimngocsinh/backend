@@ -2,7 +2,6 @@ package com.springboot.backend.service.impl;
 
 import com.springboot.backend.dto.CategoryDto;
 import com.springboot.backend.entity.Category;
-import com.springboot.backend.mapper.CategoryMapper;
 import com.springboot.backend.repository.CategoryRepository;
 import com.springboot.backend.service.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,8 +13,8 @@ public class CategoryServiceImpl implements CategoryService {
     @Autowired
     private CategoryRepository categoryRepository;
 
-    @Autowired
-    private CategoryMapper categoryMapper;
+//    @Autowired
+//    private CategoryMapper categoryMapper;
 
     /**
      * Get ban ghi category theo id
@@ -28,7 +27,14 @@ public class CategoryServiceImpl implements CategoryService {
                 .orElse(null);
         CategoryDto categoryDto = new CategoryDto();
         if (category != null) {
-            categoryDto =  categoryMapper.toCategoryDto(category);
+            categoryDto.setId(category.getId());
+            categoryDto.setCreatedBy(category.getCreatedBy());
+            categoryDto.setCreatedDate(category.getCreatedDate());
+            categoryDto.setModifiedBy(category.getModifiedBy());
+            categoryDto.setModifiedDate(category.getModifiedDate());
+            categoryDto.setName(category.getName());
+            categoryDto.setParentId(category.getParentId());
+            categoryDto.setCode(category.getCode());
         }
         return categoryDto;
     }
@@ -40,9 +46,12 @@ public class CategoryServiceImpl implements CategoryService {
      */
     @Override
     public CategoryDto createCategory(CategoryDto categoryDto) {
-        Category category = categoryMapper.toCategory(categoryDto);
+        Category category = new Category();
+        category.setName(categoryDto.getName());
+        category.setParentId(categoryDto.getParentId());
+        category.setCode(categoryDto.getCode());
         categoryRepository.save(category);
-        return categoryMapper.toCategoryDto(category);
+        return categoryDto;
     }
 
     /**
@@ -55,7 +64,9 @@ public class CategoryServiceImpl implements CategoryService {
         Category category = categoryRepository.findById(categoryDto.getId())
                 .orElse(null);
         if (category != null) {
-            categoryMapper.updateCategoryFromDto(categoryDto, category);
+            category.setName(categoryDto.getName());
+            category.setParentId(categoryDto.getParentId());
+            category.setCode(categoryDto.getCode());
             categoryRepository.save(category);
         }
         return categoryDto;

@@ -10,8 +10,6 @@ import java.util.Set;
 
 @Entity
 @Data
-@Getter
-@Setter
 @Table(name = "tbl_role")
 public class Role extends BaseEntity{
 
