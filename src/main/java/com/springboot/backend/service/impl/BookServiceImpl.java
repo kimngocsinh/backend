@@ -49,9 +49,9 @@ public class BookServiceImpl implements BookService {
         if (categoryOpt.isEmpty()) {
             return new ResponseDto<>(false, Constants.CATEGORY_NOT_FOUND, null);
         }
-
-        BookDto dto = convertEntityToDto(book, categoryOpt);
-        return new ResponseDto<>(true, Constants.SUCCESS, dto);
+        BookDto bookDto = new BookDto();
+        convertEntityToDto(book, categoryOpt.get(), bookDto);
+        return new ResponseDto<>(true, Constants.SUCCESS, bookDto);
     }
 
     /**
@@ -61,16 +61,20 @@ public class BookServiceImpl implements BookService {
      */
     @Override
     public ResponseDto<BookDto> createBook(BookDto bookDto) {
-        // Kiểm tra category có tồn tại không
         Optional<Category> categoryOpt = categoryRepository.findById(bookDto.getCategoryId());
         if (categoryOpt.isEmpty()) {
             return new ResponseDto<>(false, Constants.CATEGORY_NOT_FOUND, null);
         }
 
-        Book book = convertDtoToEntity(bookDto);
+        Book book = new Book();
+        convertDtoToEntity(bookDto, book);
 
-        BookDto dto = convertEntityToDto(bookRepository.save(book), categoryOpt);
-        return new ResponseDto<>(true, Constants.SUCCESS, dto);
+        Book savedBook = bookRepository.save(book);
+
+        BookDto resultDto = new BookDto();
+        convertEntityToDto(savedBook, categoryOpt.get(), resultDto);
+
+        return new ResponseDto<>(true, Constants.SUCCESS, resultDto);
     }
 
     /**
@@ -91,10 +95,10 @@ public class BookServiceImpl implements BookService {
             return new ResponseDto<>(false, Constants.CATEGORY_NOT_FOUND, null);
         }
 
-        book = convertDtoToEntity(bookDto);
-        BookDto dto = convertEntityToDto(bookRepository.save(book), categoryOpt);
+        convertDtoToEntity(bookDto, book);
+        convertEntityToDto(bookRepository.save(book), categoryOpt.get(), bookDto);
 
-        return new  ResponseDto<>(true, Constants.SUCCESS, dto);
+        return new  ResponseDto<>(true, Constants.SUCCESS, bookDto);
     }
 
     /**
@@ -105,7 +109,7 @@ public class BookServiceImpl implements BookService {
     @Override
     public ResponseDto<Void> deleteBook(long id) {
         if (bookRepository.findById(id).isEmpty()) {
-            return new ResponseDto<>(false, Constants.CATEGORY_NOT_FOUND, null);
+            return new ResponseDto<>(false, Constants.BOOK_NOT_FOUND, null);
         }
 
         bookRepository.deleteById(id);
@@ -119,8 +123,7 @@ public class BookServiceImpl implements BookService {
      * @param category
      * @return BookDto
      */
-    private BookDto convertEntityToDto(Book book, Optional<Category> category) {
-        BookDto bookDto = new BookDto();
+    private void convertEntityToDto(Book book, Category category, BookDto bookDto) {
         bookDto.setId(book.getId());
         bookDto.setCode(book.getCode());
         bookDto.setName(book.getName());
@@ -135,15 +138,13 @@ public class BookServiceImpl implements BookService {
         bookDto.setPurchasedCount(book.getPurchasedCount());
 
         // Gán thêm thông tin từ Category
-        bookDto.setCategoryName(category.get().getName());
+        bookDto.setCategoryName(category.getName());
 
         // Audit
         bookDto.setCreatedBy(book.getCreatedBy());
         bookDto.setCreatedDate(book.getCreatedDate());
         bookDto.setModifiedBy(book.getModifiedBy());
         bookDto.setModifiedDate(book.getModifiedDate());
-
-        return bookDto;
     }
 
     /**
@@ -151,8 +152,7 @@ public class BookServiceImpl implements BookService {
      * @param bookDto
      * @return Book
      */
-    private Book convertDtoToEntity(BookDto bookDto) {
-        Book book = new Book();
+    private void convertDtoToEntity(BookDto bookDto, Book book) {
         book.setCode(bookDto.getCode());
         book.setName(bookDto.getName());
         book.setDescription(bookDto.getDescription());
@@ -164,7 +164,5 @@ public class BookServiceImpl implements BookService {
         book.setCategoryId(bookDto.getCategoryId());
         book.setImage(bookDto.getImage());
         book.setPurchasedCount(bookDto.getPurchasedCount());
-
-        return  book;
     }
 }
