@@ -15,6 +15,6 @@ public interface BookService {
 
     ResponseDto<BookDto> updateBook (BookDto bookDto);
 
-    void deleteBook (long id);
+    ResponseDto<Void> deleteBook (long id);
 
 }

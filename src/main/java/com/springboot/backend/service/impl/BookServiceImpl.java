@@ -31,6 +31,11 @@ public class BookServiceImpl implements BookService {
         return null;
     }
 
+    /**
+     * get book theo id
+     * @param id
+     * @return ResponseDto<BookDto>
+     */
     @Override
     public ResponseDto<BookDto> getBook(long id) {
         Optional<Book> optionalBook = bookRepository.findById(id);
@@ -49,6 +54,11 @@ public class BookServiceImpl implements BookService {
         return new ResponseDto<>(true, Constants.SUCCESS, dto);
     }
 
+    /**
+     * Create new book
+     * @param bookDto
+     * @return ResponseDto<BookDto>
+     */
     @Override
     public ResponseDto<BookDto> createBook(BookDto bookDto) {
         // Kiểm tra category có tồn tại không
@@ -63,6 +73,11 @@ public class BookServiceImpl implements BookService {
         return new ResponseDto<>(true, Constants.SUCCESS, dto);
     }
 
+    /**
+     * Update Book
+     * @param bookDto
+     * @return ResponseDto<BookDto>
+     */
     @Override
     public ResponseDto<BookDto> updateBook(BookDto bookDto) {
         Optional<Book> optionalBook = bookRepository.findById(bookDto.getId());
@@ -82,15 +97,28 @@ public class BookServiceImpl implements BookService {
         return new  ResponseDto<>(true, Constants.SUCCESS, dto);
     }
 
+    /**
+     * Delete Book theo id
+     * @param id
+     * @return ResponseDto<BookDto>
+     */
     @Override
-    public void deleteBook(long id) {
-        if (bookRepository.findById(id).isPresent()) {
-            bookRepository.deleteById(id);
+    public ResponseDto<Void> deleteBook(long id) {
+        if (bookRepository.findById(id).isEmpty()) {
+            return new ResponseDto<>(false, Constants.CATEGORY_NOT_FOUND, null);
         }
+
+        bookRepository.deleteById(id);
+        return new ResponseDto<>(true, Constants.SUCCESS, null);
     }
 
 
-
+    /**
+     * Convert Entity to Dto
+     * @param book
+     * @param category
+     * @return BookDto
+     */
     private BookDto convertEntityToDto(Book book, Optional<Category> category) {
         BookDto bookDto = new BookDto();
         bookDto.setId(book.getId());
@@ -118,6 +146,11 @@ public class BookServiceImpl implements BookService {
         return bookDto;
     }
 
+    /**
+     * conver Dto to Entity
+     * @param bookDto
+     * @return Book
+     */
     private Book convertDtoToEntity(BookDto bookDto) {
         Book book = new Book();
         book.setCode(bookDto.getCode());
