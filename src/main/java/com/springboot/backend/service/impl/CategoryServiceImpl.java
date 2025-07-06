@@ -1,11 +1,15 @@
 package com.springboot.backend.service.impl;
 
+import com.springboot.backend.config.Constants;
 import com.springboot.backend.dto.CategoryDto;
 import com.springboot.backend.entity.Category;
+import com.springboot.backend.entity.ResponseDto;
 import com.springboot.backend.repository.CategoryRepository;
 import com.springboot.backend.service.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 public class CategoryServiceImpl implements CategoryService {
@@ -22,21 +26,25 @@ public class CategoryServiceImpl implements CategoryService {
      * @return CategoryDto
      */
     @Override
-    public CategoryDto getCategory(Long id) {
-        Category category = categoryRepository.findById(id)
-                .orElse(null);
-        CategoryDto categoryDto = new CategoryDto();
-        if (category != null) {
-            categoryDto.setId(category.getId());
-            categoryDto.setCreatedBy(category.getCreatedBy());
-            categoryDto.setCreatedDate(category.getCreatedDate());
-            categoryDto.setModifiedBy(category.getModifiedBy());
-            categoryDto.setModifiedDate(category.getModifiedDate());
-            categoryDto.setName(category.getName());
-            categoryDto.setParentId(category.getParentId());
-            categoryDto.setCode(category.getCode());
+    public ResponseDto<CategoryDto> getCategory(Long id) {
+        Optional<Category> optional = categoryRepository.findById(id);
+
+        if (optional.isEmpty()) {
+            return new ResponseDto<>(false, Constants.CATEGORY_NOT_FOUND, null);
         }
-        return categoryDto;
+
+        Category category = optional.get();
+        CategoryDto dto = new CategoryDto();
+        dto.setId(category.getId());
+        dto.setCreatedBy(category.getCreatedBy());
+        dto.setCreatedDate(category.getCreatedDate());
+        dto.setModifiedBy(category.getModifiedBy());
+        dto.setModifiedDate(category.getModifiedDate());
+        dto.setName(category.getName());
+        dto.setParentId(category.getParentId());
+        dto.setCode(category.getCode());
+
+        return new ResponseDto<>(true, Constants.SUCCESS, dto);
     }
 
     /**
@@ -45,7 +53,7 @@ public class CategoryServiceImpl implements CategoryService {
      * @return CategoryDto
      */
     @Override
-    public CategoryDto createCategory(CategoryDto categoryDto) {
+    public ResponseDto<CategoryDto> createCategory(CategoryDto categoryDto) {
         Category category = new Category();
         category.setName(categoryDto.getName());
         category.setParentId(categoryDto.getParentId());
@@ -61,7 +69,7 @@ public class CategoryServiceImpl implements CategoryService {
         result.setCreatedDate(saved.getCreatedDate());
         result.setModifiedBy(saved.getModifiedBy());
         result.setModifiedDate(saved.getModifiedDate());
-        return categoryDto;
+        return new ResponseDto<>(true, Constants.SUCCESS, result);
     }
 
     /**
@@ -70,23 +78,25 @@ public class CategoryServiceImpl implements CategoryService {
      * @return CategoryDto
      */
     @Override
-    public CategoryDto updateCategory(CategoryDto categoryDto) {
-        Category category = categoryRepository.findById(categoryDto.getId())
-                .orElse(null);
-        CategoryDto result = new CategoryDto();
-        if (category != null) {
-            Category updated = categoryRepository.save(category);
-
-            result.setId(updated.getId());
-            result.setName(updated.getName());
-            result.setCode(updated.getCode());
-            result.setParentId(updated.getParentId());
-            result.setModifiedBy(updated.getModifiedBy());
-            result.setModifiedDate(updated.getModifiedDate());
-            result.setCreatedBy(updated.getCreatedBy());
-            result.setCreatedDate(updated.getCreatedDate());
+    public ResponseDto<CategoryDto> updateCategory(CategoryDto categoryDto) {
+        Optional<Category> optional = categoryRepository.findById(categoryDto.getId());
+        if (optional.isEmpty()) {
+            return new ResponseDto<>(false, Constants.CATEGORY_NOT_FOUND, null);
         }
-        return result;
+
+        Category category = optional.get();
+        CategoryDto result = new CategoryDto();
+        Category updated = categoryRepository.save(category);
+
+        result.setId(updated.getId());
+        result.setName(updated.getName());
+        result.setCode(updated.getCode());
+        result.setParentId(updated.getParentId());
+        result.setModifiedBy(updated.getModifiedBy());
+        result.setModifiedDate(updated.getModifiedDate());
+        result.setCreatedBy(updated.getCreatedBy());
+        result.setCreatedDate(updated.getCreatedDate());
+        return new ResponseDto<>(true, Constants.SUCCESS, result);
     }
 
     /**
@@ -94,9 +104,12 @@ public class CategoryServiceImpl implements CategoryService {
      * @param id
      */
     @Override
-    public void deleteCategory(Long id) {
-        if (categoryRepository.findById(id).isPresent()) {
-            categoryRepository.deleteById(id);
+    public ResponseDto<Void> deleteCategory(Long id) {
+        if (categoryRepository.findById(id).isEmpty()) {
+            return new ResponseDto<>(false, Constants.CATEGORY_NOT_FOUND, null);
         }
+
+        categoryRepository.deleteById(id);
+        return new ResponseDto<>(true, Constants.SUCCESS, null);
     }
 }
