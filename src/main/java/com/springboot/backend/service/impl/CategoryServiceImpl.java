@@ -50,7 +50,17 @@ public class CategoryServiceImpl implements CategoryService {
         category.setName(categoryDto.getName());
         category.setParentId(categoryDto.getParentId());
         category.setCode(categoryDto.getCode());
-        categoryRepository.save(category);
+        Category saved = categoryRepository.save(category);
+
+        CategoryDto result = new CategoryDto();
+        result.setId(saved.getId());
+        result.setName(saved.getName());
+        result.setParentId(saved.getParentId());
+        result.setCode(saved.getCode());
+        result.setCreatedBy(saved.getCreatedBy());
+        result.setCreatedDate(saved.getCreatedDate());
+        result.setModifiedBy(saved.getModifiedBy());
+        result.setModifiedDate(saved.getModifiedDate());
         return categoryDto;
     }
 
@@ -63,13 +73,20 @@ public class CategoryServiceImpl implements CategoryService {
     public CategoryDto updateCategory(CategoryDto categoryDto) {
         Category category = categoryRepository.findById(categoryDto.getId())
                 .orElse(null);
+        CategoryDto result = new CategoryDto();
         if (category != null) {
-            category.setName(categoryDto.getName());
-            category.setParentId(categoryDto.getParentId());
-            category.setCode(categoryDto.getCode());
-            categoryRepository.save(category);
+            Category updated = categoryRepository.save(category);
+
+            result.setId(updated.getId());
+            result.setName(updated.getName());
+            result.setCode(updated.getCode());
+            result.setParentId(updated.getParentId());
+            result.setModifiedBy(updated.getModifiedBy());
+            result.setModifiedDate(updated.getModifiedDate());
+            result.setCreatedBy(updated.getCreatedBy());
+            result.setCreatedDate(updated.getCreatedDate());
         }
-        return categoryDto;
+        return result;
     }
 
     /**
