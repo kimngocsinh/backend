@@ -3,20 +3,20 @@ spring:
     init:
       mode: always
   jpa:
-    database: mysql
+    database: POSTGRESQL
     hibernate:
       ddl-auto: update
-      dialect: org.hibernate.dialect.MySQLDialect
+      dialect: org.hibernate.dialect.PostgreSQLDialect
     properties:
       hibernate:
         enable_lazy_load_no_trans: true
         show_sql: false
         format_sql: false
   datasource:
-    url: jdbc:mysql://localhost:3306/quanligiaotrinh?createDatabaseIfNotExist=true&autoReconnect=true&userSSL=false&useUnicode=true&characterEncoding=utf-8
-    username: root
+    url: jdbc:postgresql://localhost:5432/quanligiaotrinh?createDatabaseIfNotExist=true&autoReconnect=true&userSSL=false&useUnicode=true&characterEncoding=utf-8
+    username: postgres
     password: 123456
-    driverClassName: com.mysql.cj.jdbc.Driver
+    driverClassName: org.postgresql.Driver
   servlet:
     multipart:
       max-file-size: 50MB
@@ -28,3 +28,8 @@ server:
     include-message: always
     include-binding-errors: always
     include-stacktrace: never
+
+app:
+  jwt:
+    secret: u8vD8A6X8FsK2oU6e92HxyuDhYxG9lXRX0wqJ2z8gAQ=
+    expirationMs: 3600000

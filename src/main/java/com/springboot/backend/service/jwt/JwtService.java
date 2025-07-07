@@ -1,0 +1,81 @@
+package com.springboot.backend.service.jwt;
+
+import com.springboot.backend.entity.User;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import java.security.Key;
+import java.util.Date;
+
+@Service
+public class JwtService {
+
+    @Value("${app.jwt.secret}")
+    private String jwtSecret;
+
+    @Value("${app.jwt.expirationMs}")
+    private long jwtExpirationInMs; // thời gian hết hạn token(ms)
+
+    /**
+     * Lấy secret key và mã hóa xuống byte[]
+     * @return : Key: secret key đã được mã hóa
+     */
+    public Key getSigningKey() {
+        byte[] keyBytes = Decoders.BASE64.decode(jwtSecret);
+        return Keys.hmacShaKeyFor(keyBytes);
+    }
+
+    /**
+     * Tọa JWT cho người dùng
+     * @param user : người dùng
+     * @return : chuỗi JWT
+     */
+    public String generateToken(User user) {
+        return Jwts.builder()
+                .setSubject(user.getUsername())
+                .setIssuedAt(new Date()) // Thời điểm khởi tạo
+                .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationInMs))
+                .signWith(getSigningKey(), SignatureAlgorithm.HS512)
+                .compact();
+    }
+
+    /**
+     * Lấy username từ token
+     * @param token
+     * @return username trong token
+     */
+    public String extractUsername(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(getSigningKey())
+                .build()
+                .parseClaimsJws(token).getBody().getSubject();
+    }
+
+    /**
+     * Kiểm tra token đã hết hạn chưa
+     * @param token JWT
+     * @return true nếu đã hết hạn
+     */
+    public boolean isTokenExpired(String token) {
+        final Date expiDate = Jwts.parserBuilder()
+                .setSigningKey(getSigningKey())
+                .build()
+                .parseClaimsJws(token).getBody().getExpiration(); // Lấy ngày hết hạn
+        return expiDate.before(new Date()); // so sánh ngày hết hạn với thời điểm hiện tại
+    }
+
+    /**
+     * Kiểm tra token còn hợp lệ với người dùng k
+     * @param token
+     * @param user
+     * @return
+     */
+    public boolean isTokenValid(String token, User user) {
+        final String username = extractUsername(token);
+        return (username.equals(user.getUsername()) && !isTokenExpired(token));
+    }
+}
