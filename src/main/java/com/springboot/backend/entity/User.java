@@ -2,6 +2,7 @@ package com.springboot.backend.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -11,6 +12,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 @Entity
 @Table(name = "tbl_user")
@@ -30,7 +32,7 @@ public class User extends BaseEntity implements UserDetails {
 
     private Long roleId;
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.DETACH)
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.DETACH)
     @JoinTable(name = "tbl_user_roles",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))

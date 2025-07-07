@@ -14,6 +14,4 @@ public class RoleDto extends BaseDto {
     private Integer status;
 
     private String description;
-
-    private Set<User> users;
 }
