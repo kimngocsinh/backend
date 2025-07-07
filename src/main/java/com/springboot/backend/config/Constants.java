@@ -14,5 +14,7 @@ public class Constants {
 
     public static final String BOOK_NOT_FOUND = "book not found";
 
+    public static final String USER_NOT_FOUND = "user not found";
+
     public static final String LOGIN_INVALID = "Invalid username or password";
 }

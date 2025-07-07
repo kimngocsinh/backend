@@ -43,9 +43,9 @@ public class AuthController {
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
-            User user = (User) authentication.getPrincipal();
+            User userDetails = (User) authentication.getPrincipal();
 
-            String token = jwtService.generateToken(user);
+            String token = jwtService.generateToken(userDetails);
 
             return ResponseEntity.ok(new LoginResponse(token));
         } catch (AuthenticationException e) {

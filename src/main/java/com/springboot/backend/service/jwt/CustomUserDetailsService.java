@@ -1,5 +1,6 @@
 package com.springboot.backend.service.jwt;
 
+import com.springboot.backend.entity.User;
 import com.springboot.backend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -21,6 +22,7 @@ public class CustomUserDetailsService implements UserDetailsService {
      */
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        return userRepository.findByUsernameWithRoles(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
 }
