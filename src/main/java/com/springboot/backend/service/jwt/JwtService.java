@@ -25,8 +25,7 @@ public class JwtService {
      * @return : Key: secret key đã được mã hóa
      */
     public Key getSigningKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(jwtSecret);
-        return Keys.hmacShaKeyFor(keyBytes);
+        return Keys.hmacShaKeyFor(jwtSecret.getBytes());
     }
 
     /**

@@ -5,9 +5,11 @@ import com.springboot.backend.dto.UserDto;
 import com.springboot.backend.entity.ResponseDto;
 import com.springboot.backend.entity.Role;
 import com.springboot.backend.entity.User;
+import com.springboot.backend.payload.RegisterResponse;
 import com.springboot.backend.repository.RoleRepository;
 import com.springboot.backend.repository.UserRepository;
 import com.springboot.backend.service.UserService;
+import com.springboot.backend.service.jwt.JwtService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -29,6 +31,14 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private JwtService  jwtService;
+
+    /**
+     * Get user theo id
+     * @param id : mã id cần lấy ra
+     * @return: thông tin user
+     */
     @Override
     public ResponseDto<UserDto> getUser(Long id) {
         Optional<User> userOpt = userRepository.findById(id);
@@ -58,8 +68,17 @@ public class UserServiceImpl implements UserService {
         return new ResponseDto<>(true, Constants.SUCCESS, dto);
     }
 
+    /**
+     * Đăng ký user
+     * @param userDto : thông tin user đăng ký
+     * @return: Thông tin user và token
+     */
     @Override
-    public ResponseDto<UserDto> createUser(UserDto userDto) {
+    public ResponseDto<RegisterResponse> createUser(UserDto userDto) {
+
+        if (userRepository.existsByUsername(userDto.getUsername())) {
+            return new ResponseDto<>(false, Constants.USER_ALREADY_EXISTS, null);
+        }
         // Tạo đối tượng User từ DTO
         User user = new User();
         user.setUsername(userDto.getUsername());
@@ -85,10 +104,12 @@ public class UserServiceImpl implements UserService {
         }
         user.setRoles(roles);
 
-        // 3. Lưu vào DB
         User savedUser = userRepository.save(user);
 
+        String token = jwtService.generateToken(savedUser);
+
         // 4. Chuyển lại thành UserDto để trả về
+        RegisterResponse registerResponse = new RegisterResponse();
         UserDto responseDto = new UserDto();
         responseDto.setId(savedUser.getId());
         responseDto.setUsername(savedUser.getUsername());
@@ -104,7 +125,10 @@ public class UserServiceImpl implements UserService {
                 .collect(Collectors.toSet());
         responseDto.setRoles(roleCodes);
 
-        return new ResponseDto<>(true, Constants.SUCCESS, responseDto);
+        registerResponse.setUser(responseDto);
+        registerResponse.setToken(token);
+
+        return new ResponseDto<>(true, Constants.SUCCESS, registerResponse);
     }
 
     @Override

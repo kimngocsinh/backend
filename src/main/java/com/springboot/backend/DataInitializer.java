@@ -4,6 +4,9 @@ import com.springboot.backend.entity.Role;
 import com.springboot.backend.entity.User;
 import com.springboot.backend.repository.RoleRepository;
 import com.springboot.backend.repository.UserRepository;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,7 +15,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import java.util.Set;
 
 @Configuration
+@Slf4j
 public class DataInitializer {
+
+    private Logger logger = LoggerFactory.getLogger(DataInitializer.class);
 
     @Bean
     public CommandLineRunner initDefaultUser(UserRepository userRepository,
@@ -41,7 +47,7 @@ public class DataInitializer {
 
                 userRepository.save(admin);
 
-                System.out.println("Admin mặc định đã được tạo: admin / admin123");
+                logger.info("Admin mặc định đã được tạo: admin / admin123");
             }
         };
     }

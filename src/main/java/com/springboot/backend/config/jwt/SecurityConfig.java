@@ -30,6 +30,9 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll()
                         .anyRequest().authenticated()
                 )
+
+                .exceptionHandling(ex -> ex.authenticationEntryPoint(new AuthEntryPoint()))
+
                 // Mỗi req khi đến sẽ được jwtAuthFilter xử lý trước nếu token hợp lệ sẽ đặt Authentication trong
                 // SecurityContext -> UsernamePasswordAuthenticationFilter chạy bỏ qua xác thực
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
