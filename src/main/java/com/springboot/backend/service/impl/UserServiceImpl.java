@@ -101,7 +101,7 @@ public class UserServiceImpl implements UserService {
      * @param id : mã id cần lấy ra
      * @return: thông tin user
      */
-    @PostAuthorize("returnObject.data.username == authentication.name") // truy cập vào phương thức sau đó so sánh với role, chỉ cho phép user đăng nhập
+//    @PostAuthorize("returnObject.data.username == authentication.name") // truy cập vào phương thức sau đó so sánh với role, chỉ cho phép user đăng nhập
     @Override                                                      // xem thông tin của mình
     public ResponseDto<UserDto> getUser(Long id) {
         Optional<User> userOpt = userRepository.findById(id);

@@ -29,8 +29,4 @@ public class UserController {
         return ResponseEntity.ok(userService.getUser(id));
     }
 
-    @PostMapping
-    public ResponseEntity<ResponseDto<RegisterResponse>> createCategory(@RequestBody UserDto UserDto) {
-        return ResponseEntity.ok(userService.createUser(UserDto));
-    }
 }

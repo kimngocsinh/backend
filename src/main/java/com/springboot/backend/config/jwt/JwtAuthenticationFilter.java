@@ -60,7 +60,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 Claims claims = jwtService.extractAllClaims(jwt);
 
                 // Lấy danh sách role từ claims
-                List<String> roleList = claims.get("roles", List.class);
+                String roleName = claims.get("roles", String.class);
+                List<String> roleList = List.of(roleName);
 
                 //Custom lại role bắt đầu bằng "ROLE_"
                 //Neu dùng thư viện Oauth2 thì dùng hàm jwtAuthenticationConverter để customize lại
@@ -72,8 +73,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                         userDetails, //principal
                         null, // không cần vì đã xác thực
-                        userDetails.getAuthorities()); // quyền
+                        authorities); // quyền
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request)); // thông tin chi tiết về request: IP/session/log
+
+                authentication.getAuthorities().forEach(grantedAuthority -> logger.info(grantedAuthority.getAuthority()));
 
                 // Đặt authentication cho context để các filter sau nhận diện
                 // Để hệ thống biết rằng request đã được xác thưực

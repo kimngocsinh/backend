@@ -1,9 +1,13 @@
 package com.springboot.backend.controller;
 
 import com.springboot.backend.config.Constants;
+import com.springboot.backend.dto.UserDto;
+import com.springboot.backend.entity.ResponseDto;
 import com.springboot.backend.entity.User;
 import com.springboot.backend.payload.LoginRequest;
 import com.springboot.backend.payload.LoginResponse;
+import com.springboot.backend.payload.RegisterResponse;
+import com.springboot.backend.service.UserService;
 import com.springboot.backend.service.jwt.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -27,7 +31,7 @@ public class AuthController {
 
     private final AuthenticationManager authenticationManager;  // Quản lý xác thực
     private final JwtService jwtService;  // Service xử lý JWT
-
+    private final UserService userService;
 
     /**
      * API login
@@ -52,5 +56,10 @@ public class AuthController {
             Map<String, String> errors = Map.of(Constants.ERROR, Constants.LOGIN_INVALID);
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new LoginResponse(errors));
         }
+    }
+
+    @PostMapping("/register")
+    public ResponseEntity<ResponseDto<RegisterResponse>> createCategory(@RequestBody UserDto UserDto) {
+        return ResponseEntity.ok(userService.createUser(UserDto));
     }
 }

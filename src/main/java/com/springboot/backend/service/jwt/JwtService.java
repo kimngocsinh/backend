@@ -41,7 +41,7 @@ public class JwtService {
                 .setSubject(user.getUsername())
                 .setIssuedAt(new Date()) // Thời điểm khởi tạo
                 .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationInMs))
-                .claim("scope", buildScope(user))
+                .claim("roles", buildScope(user))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS512)
                 .compact();
     }
@@ -90,7 +90,7 @@ public class JwtService {
     private String buildScope(User user) {
         StringJoiner stringJoiner = new StringJoiner(" ");
         if (!CollectionUtils.isEmpty(user.getRoles())) {
-            user.getRoles().forEach(role -> stringJoiner.add(role.getName()));
+            user.getRoles().forEach(role -> stringJoiner.add(role.getCode()));
         }
         return stringJoiner.toString();
     }
