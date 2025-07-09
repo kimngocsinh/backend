@@ -18,7 +18,7 @@ import java.util.Set;
 @Slf4j
 public class DataInitializer {
 
-    private Logger logger = LoggerFactory.getLogger(DataInitializer.class);
+    private final Logger logger = LoggerFactory.getLogger(DataInitializer.class);
 
     @Bean
     public CommandLineRunner initDefaultUser(UserRepository userRepository,

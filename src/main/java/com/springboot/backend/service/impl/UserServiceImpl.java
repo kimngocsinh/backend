@@ -11,10 +11,15 @@ import com.springboot.backend.repository.UserRepository;
 import com.springboot.backend.service.UserService;
 import com.springboot.backend.service.jwt.JwtService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -34,12 +39,70 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private JwtService  jwtService;
 
+    @PreAuthorize("hasRole('ADMIN')") // kiểm tra role truớc khi vào method
+    @Override
+    public List<ResponseDto<UserDto>> getAllUser() {
+        return userRepository.findAll().stream()
+                .map(user -> {
+                    UserDto dto = new UserDto();
+                    dto.setId(user.getId());
+                    dto.setUsername(user.getUsername());
+                    dto.setEmail(user.getEmail());
+                    dto.setPhone(user.getPhone());
+                    dto.setAddress(user.getAddress());
+                    dto.setStatus(user.getStatus());
+                    dto.setRoleId(user.getRoleId());
+
+                    // Convert Set<Role> -> Set<String> (role code)
+                    Set<String> roleCodes = user.getRoles()
+                            .stream()
+                            .map(Role::getCode)
+                            .collect(Collectors.toSet());
+                    dto.setRoles(roleCodes);
+                    return new ResponseDto<>(true, Constants.SUCCESS, dto);
+                }).collect(Collectors.toList());
+
+    }
+
+    @Override
+    public ResponseDto<UserDto> getMyInfo() {
+        // Chứa thông tin user đang đăng nhập
+        SecurityContext securityContext = SecurityContextHolder.getContext();
+        String name = securityContext.getAuthentication().getName();
+        Optional<User> userOpt = userRepository.findByUsername(name);
+        if (userOpt.isEmpty()) {
+            return new ResponseDto<>(true, Constants.ERROR, null);
+        }
+
+        User user = userOpt.get();
+
+        // Ánh xạ User -> UserDto
+        UserDto dto = new UserDto();
+        dto.setId(user.getId()); // kế thừa từ BaseDto/BaseEntity
+        dto.setUsername(user.getUsername());
+        dto.setEmail(user.getEmail());
+        dto.setPhone(user.getPhone());
+        dto.setAddress(user.getAddress());
+        dto.setStatus(user.getStatus());
+        dto.setRoleId(user.getRoleId());
+
+        // Convert Set<Role> -> Set<String> (role code)
+        Set<String> roleCodes = user.getRoles()
+                .stream()
+                .map(Role::getCode)
+                .collect(Collectors.toSet());
+        dto.setRoles(roleCodes);
+
+        return new ResponseDto<>(true, Constants.SUCCESS, dto);
+    }
+
     /**
      * Get user theo id
      * @param id : mã id cần lấy ra
      * @return: thông tin user
      */
-    @Override
+    @PostAuthorize("returnObject.data.username == authentication.name") // truy cập vào phương thức sau đó so sánh với role, chỉ cho phép user đăng nhập
+    @Override                                                      // xem thông tin của mình
     public ResponseDto<UserDto> getUser(Long id) {
         Optional<User> userOpt = userRepository.findById(id);
         if (userOpt.isEmpty()) {

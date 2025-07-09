@@ -84,3 +84,6 @@ override lại method: void doFilterInternal(HttpServletRequest request,
   Hợp lệ gán vào : SecurityContextHolder.getContext().setAuthentication(authentication);
   -> Kiểm tra hợp lệ xong lấy ra thông tin user: User userDetails = (User) authentication.getPrincipal();
   và tạo token từ thông tin user trên.
+
+
+* Ngoài phân quyền theo endpoint thì còn phân quyền theo method

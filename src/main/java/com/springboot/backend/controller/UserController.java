@@ -6,6 +6,8 @@ import com.springboot.backend.payload.RegisterResponse;
 import com.springboot.backend.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -17,6 +19,13 @@ public class UserController {
 
     @GetMapping("/{id}")
     public ResponseEntity<ResponseDto<UserDto>> getUser(@PathVariable Long id) {
+
+        // Chứa thông tin user đang đăng nhập
+        SecurityContext securityContext = SecurityContextHolder.getContext();
+
+        // Lấy thông tin đăng nhập
+        var authentication = securityContext.getAuthentication();
+
         return ResponseEntity.ok(userService.getUser(id));
     }
 

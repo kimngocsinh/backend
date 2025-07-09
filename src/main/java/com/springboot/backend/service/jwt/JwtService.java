@@ -1,15 +1,18 @@
 package com.springboot.backend.service.jwt;
 
 import com.springboot.backend.entity.User;
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.security.Key;
 import java.util.Date;
+import java.util.StringJoiner;
 
 @Service
 public class JwtService {
@@ -38,6 +41,7 @@ public class JwtService {
                 .setSubject(user.getUsername())
                 .setIssuedAt(new Date()) // Thời điểm khởi tạo
                 .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationInMs))
+                .claim("scope", buildScope(user))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS512)
                 .compact();
     }
@@ -76,5 +80,30 @@ public class JwtService {
     public boolean isTokenValid(String token, User user) {
         final String username = extractUsername(token);
         return (username.equals(user.getUsername()) && !isTokenExpired(token));
+    }
+
+    /**
+     * Get ra các role của user
+     * @param user
+     * @return: role của user
+     */
+    private String buildScope(User user) {
+        StringJoiner stringJoiner = new StringJoiner(" ");
+        if (!CollectionUtils.isEmpty(user.getRoles())) {
+            user.getRoles().forEach(role -> stringJoiner.add(role.getName()));
+        }
+        return stringJoiner.toString();
+    }
+
+    /**
+     * Giải mã payload của token: thông tin đăng nhập
+     * @param token
+     * @return Claims (thông tin user đăng nhập)
+     */
+    public Claims extractAllClaims(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(getSigningKey())
+                .build()
+                .parseClaimsJws(token).getBody();
     }
 }
