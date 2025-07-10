@@ -31,7 +31,7 @@ public class SecurityConfig {
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/users").hasRole(Constants.ROLE_ADMIN) // Dungf @PreAuthorize thì k cần dùng endpoint này
+                        .requestMatchers("/api/users/**").hasRole(Constants.ROLE_ADMIN) // Dungf @PreAuthorize thì k cần dùng endpoint này
                         .anyRequest().authenticated()
                 )
 

@@ -16,6 +16,8 @@ public class Constants {
 
     public static final String USER_NOT_FOUND = "user not found";
 
+    public static final String NOT_FOUND_STATUS = "404";
+
     public static final String LOGIN_INVALID = "Invalid username or password";
 
     public static final String USER_ALREADY_EXISTS = "user already exists";

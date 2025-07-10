@@ -5,11 +5,13 @@ import com.springboot.backend.dto.UserDto;
 import com.springboot.backend.entity.ResponseDto;
 import com.springboot.backend.entity.Role;
 import com.springboot.backend.entity.User;
+import com.springboot.backend.entity.response.ApiResponse;
 import com.springboot.backend.payload.RegisterResponse;
 import com.springboot.backend.repository.RoleRepository;
 import com.springboot.backend.repository.UserRepository;
 import com.springboot.backend.service.UserService;
 import com.springboot.backend.service.jwt.JwtService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -41,8 +43,8 @@ public class UserServiceImpl implements UserService {
 
     @PreAuthorize("hasRole('ADMIN')") // kiểm tra role truớc khi vào method
     @Override
-    public List<ResponseDto<UserDto>> getAllUser() {
-        return userRepository.findAll().stream()
+    public ApiResponse<List<UserDto>> getAllUser(HttpServletRequest request) {
+        List<UserDto> users = userRepository.findAll().stream()
                 .map(user -> {
                     UserDto dto = new UserDto();
                     dto.setId(user.getId());
@@ -53,25 +55,27 @@ public class UserServiceImpl implements UserService {
                     dto.setStatus(user.getStatus());
                     dto.setRoleId(user.getRoleId());
 
-                    // Convert Set<Role> -> Set<String> (role code)
                     Set<String> roleCodes = user.getRoles()
                             .stream()
                             .map(Role::getCode)
                             .collect(Collectors.toSet());
                     dto.setRoles(roleCodes);
-                    return new ResponseDto<>(true, Constants.SUCCESS, dto);
-                }).collect(Collectors.toList());
 
+                    return dto;
+                })
+                .collect(Collectors.toList());
+
+        return ApiResponse.success(users, request.getRequestURI());
     }
 
     @Override
-    public ResponseDto<UserDto> getMyInfo() {
+    public ApiResponse<UserDto> getMyInfo(HttpServletRequest request) {
         // Chứa thông tin user đang đăng nhập
         SecurityContext securityContext = SecurityContextHolder.getContext();
         String name = securityContext.getAuthentication().getName();
         Optional<User> userOpt = userRepository.findByUsername(name);
         if (userOpt.isEmpty()) {
-            return new ResponseDto<>(true, Constants.ERROR, null);
+            return ApiResponse.error(null, Constants.USER_NOT_FOUND, request.getRequestURI());
         }
 
         User user = userOpt.get();
@@ -93,7 +97,7 @@ public class UserServiceImpl implements UserService {
                 .collect(Collectors.toSet());
         dto.setRoles(roleCodes);
 
-        return new ResponseDto<>(true, Constants.SUCCESS, dto);
+        return ApiResponse.success(dto, request.getRequestURI());
     }
 
     /**
@@ -103,10 +107,10 @@ public class UserServiceImpl implements UserService {
      */
 //    @PostAuthorize("returnObject.data.username == authentication.name") // truy cập vào phương thức sau đó so sánh với role, chỉ cho phép user đăng nhập
     @Override                                                      // xem thông tin của mình
-    public ResponseDto<UserDto> getUser(Long id) {
+    public ApiResponse<UserDto> getUser(Long id, HttpServletRequest request) {
         Optional<User> userOpt = userRepository.findById(id);
         if (userOpt.isEmpty()) {
-            return new ResponseDto<>(true, Constants.ERROR, null);
+            return ApiResponse.error(null, Constants.USER_NOT_FOUND, request.getRequestURI());
         }
 
         User user = userOpt.get();
@@ -120,6 +124,10 @@ public class UserServiceImpl implements UserService {
         dto.setAddress(user.getAddress());
         dto.setStatus(user.getStatus());
         dto.setRoleId(user.getRoleId());
+        dto.setCreatedBy(user.getCreatedBy());
+        dto.setCreatedDate(user.getCreatedDate());
+        dto.setModifiedBy(user.getModifiedBy());
+        dto.setModifiedDate(user.getModifiedDate());
 
         // Convert Set<Role> -> Set<String> (role code)
         Set<String> roleCodes = user.getRoles()
@@ -128,7 +136,7 @@ public class UserServiceImpl implements UserService {
                 .collect(Collectors.toSet());
         dto.setRoles(roleCodes);
 
-        return new ResponseDto<>(true, Constants.SUCCESS, dto);
+        return ApiResponse.success(dto, request.getRequestURI());
     }
 
     /**
@@ -137,10 +145,10 @@ public class UserServiceImpl implements UserService {
      * @return: Thông tin user và token
      */
     @Override
-    public ResponseDto<RegisterResponse> createUser(UserDto userDto) {
+    public ApiResponse<RegisterResponse> createUser(UserDto userDto, HttpServletRequest request) {
 
         if (userRepository.existsByUsername(userDto.getUsername())) {
-            return new ResponseDto<>(false, Constants.USER_ALREADY_EXISTS, null);
+            return ApiResponse.error(null, Constants.USER_NOT_FOUND, request.getRequestURI());
         }
         // Tạo đối tượng User từ DTO
         User user = new User();
@@ -191,7 +199,7 @@ public class UserServiceImpl implements UserService {
         registerResponse.setUser(responseDto);
         registerResponse.setToken(token);
 
-        return new ResponseDto<>(true, Constants.SUCCESS, registerResponse);
+        return ApiResponse.success(registerResponse, request.getRequestURI());
     }
 
     @Override

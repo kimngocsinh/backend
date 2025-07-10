@@ -4,11 +4,13 @@ import com.springboot.backend.config.Constants;
 import com.springboot.backend.dto.UserDto;
 import com.springboot.backend.entity.ResponseDto;
 import com.springboot.backend.entity.User;
+import com.springboot.backend.entity.response.ApiResponse;
 import com.springboot.backend.payload.LoginRequest;
 import com.springboot.backend.payload.LoginResponse;
 import com.springboot.backend.payload.RegisterResponse;
 import com.springboot.backend.service.UserService;
 import com.springboot.backend.service.jwt.JwtService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -59,7 +61,7 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<ResponseDto<RegisterResponse>> createCategory(@RequestBody UserDto UserDto) {
-        return ResponseEntity.ok(userService.createUser(UserDto));
+    public ResponseEntity<ApiResponse<RegisterResponse>> createCategory(@RequestBody UserDto UserDto, HttpServletRequest request) {
+        return ResponseEntity.ok(userService.createUser(UserDto, request));
     }
 }
