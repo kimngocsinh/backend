@@ -2,7 +2,7 @@ package com.springboot.backend.service;
 
 import com.springboot.backend.dto.UserDto;
 import com.springboot.backend.entity.ResponseDto;
-import com.springboot.backend.entity.response.ApiResponse;
+import com.springboot.backend.dto.ApiResponse;
 import com.springboot.backend.payload.RegisterResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Service;

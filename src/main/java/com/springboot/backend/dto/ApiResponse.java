@@ -1,4 +1,4 @@
-package com.springboot.backend.entity.response;
+package com.springboot.backend.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.springboot.backend.config.Constants;
