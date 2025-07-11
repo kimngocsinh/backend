@@ -1,9 +1,6 @@
 package com.springboot.backend.dto;
 
-import com.springboot.backend.entity.User;
 import lombok.Data;
-
-import java.util.Set;
 
 @Data
 public class RoleDto extends BaseDto {

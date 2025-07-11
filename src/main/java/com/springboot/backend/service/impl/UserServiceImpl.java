@@ -2,7 +2,6 @@ package com.springboot.backend.service.impl;
 
 import com.springboot.backend.config.Constants;
 import com.springboot.backend.dto.UserDto;
-import com.springboot.backend.entity.ResponseDto;
 import com.springboot.backend.entity.Role;
 import com.springboot.backend.entity.User;
 import com.springboot.backend.dto.ApiResponse;
@@ -178,7 +177,7 @@ public class UserServiceImpl implements UserService {
 
         String token = jwtService.generateToken(savedUser);
 
-        // 4. Chuyển lại thành UserDto để trả về
+        // Chuyển lại thành UserDto để trả về
         RegisterResponse registerResponse = new RegisterResponse();
         UserDto responseDto = new UserDto();
         responseDto.setId(savedUser.getId());
@@ -202,12 +201,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public ResponseDto<UserDto> updateUser(UserDto userDto) {
+    public ApiResponse<UserDto> updateUser(UserDto userDto, HttpServletRequest request) {
         return null;
     }
 
     @Override
-    public ResponseDto<UserDto> deleteUser(Long id) {
+    public ApiResponse<UserDto> deleteUser(Long id, HttpServletRequest request) {
         return null;
     }
 }

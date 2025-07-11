@@ -1,20 +1,25 @@
 package com.springboot.backend.service;
 
+import com.springboot.backend.dto.ApiResponse;
 import com.springboot.backend.dto.BookDto;
-import com.springboot.backend.entity.ResponseDto;
+import com.springboot.backend.dto.page.BookSearchRequest;
+import com.springboot.backend.entity.Book;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 @Service
 public interface BookService {
-    public Page<BookDto> getBooks (int page, int size, String sortBy, String sortOrder);
 
-    ResponseDto<BookDto> getBook (long id);
+    ApiResponse<Page<BookDto>> searchBooks(BookSearchRequest request, HttpServletRequest req);
 
-    ResponseDto<BookDto> createBook (BookDto bookDto);
+    ApiResponse<BookDto> getBook (long id, HttpServletRequest request);
 
-    ResponseDto<BookDto> updateBook (BookDto bookDto);
+    ApiResponse<BookDto> createBook (BookDto bookDto, HttpServletRequest request);
 
-    ResponseDto<Void> deleteBook (long id);
+    ApiResponse<BookDto> updateBook (BookDto bookDto, HttpServletRequest request);
 
+    ApiResponse<Void> deleteBook (long id, HttpServletRequest request);
 }

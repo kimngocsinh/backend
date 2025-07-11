@@ -1,69 +1,96 @@
 package com.springboot.backend.service.impl;
 
 import com.springboot.backend.config.Constants;
+import com.springboot.backend.dto.ApiResponse;
 import com.springboot.backend.dto.BookDto;
+import com.springboot.backend.dto.page.BookSearchRequest;
 import com.springboot.backend.entity.Book;
 import com.springboot.backend.entity.Category;
-import com.springboot.backend.entity.ResponseDto;
 import com.springboot.backend.repository.BookRepository;
 import com.springboot.backend.repository.CategoryRepository;
 import com.springboot.backend.service.BookService;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class BookServiceImpl implements BookService {
 
-    @Autowired
-    private BookRepository bookRepository;
+    private final BookRepository bookRepository;
 
-    @Autowired
-    private CategoryRepository categoryRepository;
+    private final CategoryRepository categoryRepository;
 
 //    @Autowired
 //    private BookMapper bookMapper;
 
+    /**
+     * Thực hiện search và phân trang book
+     * @param request
+     * @param req
+     * @return ApiResponse<Page<BookDto>>
+     */
     @Override
-    public Page<BookDto> getBooks(int page, int size, String sortBy, String sortOrder) {
-        return null;
+    public ApiResponse<Page<BookDto>> searchBooks(BookSearchRequest request, HttpServletRequest req) {
+        String sortBy = request.getSortBy();
+        Sort.Direction sortOrder = Sort.Direction.fromOptionalString(request.getSortOrder()).orElse(Sort.Direction.ASC);
+        Pageable pageable = PageRequest.of(request.getPage(), request.getPageSize(), Sort.by(sortOrder, sortBy));
+
+        Specification<Book> spec = build(request);
+
+        Page<Book> page = bookRepository.findAll(spec, pageable);
+        Page<BookDto> bookDtoPage = page.map(book -> {
+           BookDto  bookDto = new BookDto();
+           convertEntityToDto(book, book.getCategory(), bookDto);
+           return bookDto;
+        });
+        return ApiResponse.success(bookDtoPage, req.getRequestURI());
     }
 
     /**
      * get book theo id
      * @param id
-     * @return ResponseDto<BookDto>
+     * @return ApiResponse<BookDto>
      */
     @Override
-    public ResponseDto<BookDto> getBook(long id) {
+    public ApiResponse<BookDto> getBook(long id, HttpServletRequest request) {
         Optional<Book> optionalBook = bookRepository.findById(id);
         if (optionalBook.isEmpty()) {
-            return new ResponseDto<>(false, Constants.BOOK_NOT_FOUND, null);
+            return ApiResponse.error(null, Constants.BOOK_NOT_FOUND,  request.getRequestURI());
         }
 
         Book book = optionalBook.get();
         Optional<Category> categoryOpt = categoryRepository.findById(book.getCategoryId());
 
         if (categoryOpt.isEmpty()) {
-            return new ResponseDto<>(false, Constants.CATEGORY_NOT_FOUND, null);
+            return ApiResponse.error(null, Constants.CATEGORY_NOT_FOUND,  request.getRequestURI());
         }
         BookDto bookDto = new BookDto();
         convertEntityToDto(book, categoryOpt.get(), bookDto);
-        return new ResponseDto<>(true, Constants.SUCCESS, bookDto);
+        return ApiResponse.success(bookDto, request.getRequestURI());
     }
 
     /**
      * Create new book
      * @param bookDto
-     * @return ResponseDto<BookDto>
+     * @return ApiResponse<BookDto>
      */
     @Override
-    public ResponseDto<BookDto> createBook(BookDto bookDto) {
+    public ApiResponse<BookDto> createBook(BookDto bookDto, HttpServletRequest request) {
         Optional<Category> categoryOpt = categoryRepository.findById(bookDto.getCategoryId());
         if (categoryOpt.isEmpty()) {
-            return new ResponseDto<>(false, Constants.CATEGORY_NOT_FOUND, null);
+            return ApiResponse.error(null, Constants.CATEGORY_NOT_FOUND,  request.getRequestURI());
         }
 
         Book book = new Book();
@@ -74,31 +101,31 @@ public class BookServiceImpl implements BookService {
         BookDto resultDto = new BookDto();
         convertEntityToDto(savedBook, categoryOpt.get(), resultDto);
 
-        return new ResponseDto<>(true, Constants.SUCCESS, resultDto);
+        return ApiResponse.success(resultDto, request.getRequestURI());
     }
 
     /**
      * Update Book
      * @param bookDto
-     * @return ResponseDto<BookDto>
+     * @return ApiResponse<BookDto>
      */
     @Override
-    public ResponseDto<BookDto> updateBook(BookDto bookDto) {
+    public ApiResponse<BookDto> updateBook(BookDto bookDto, HttpServletRequest request) {
         Optional<Book> optionalBook = bookRepository.findById(bookDto.getId());
         if (optionalBook.isEmpty()) {
-            return new ResponseDto<>(false, Constants.BOOK_NOT_FOUND, null);
+            return ApiResponse.error(null, Constants.BOOK_NOT_FOUND,  request.getRequestURI());
         }
         Book book = optionalBook.get();
 
         Optional<Category> categoryOpt = categoryRepository.findById(bookDto.getCategoryId());
         if (categoryOpt.isEmpty()) {
-            return new ResponseDto<>(false, Constants.CATEGORY_NOT_FOUND, null);
+            return ApiResponse.error(null, Constants.CATEGORY_NOT_FOUND,  request.getRequestURI());
         }
 
         convertDtoToEntity(bookDto, book);
         convertEntityToDto(bookRepository.save(book), categoryOpt.get(), bookDto);
 
-        return new  ResponseDto<>(true, Constants.SUCCESS, bookDto);
+        return ApiResponse.success(bookDto, request.getRequestURI());
     }
 
     /**
@@ -107,15 +134,48 @@ public class BookServiceImpl implements BookService {
      * @return ResponseDto<BookDto>
      */
     @Override
-    public ResponseDto<Void> deleteBook(long id) {
+    public ApiResponse<Void> deleteBook(long id, HttpServletRequest  request) {
         if (bookRepository.findById(id).isEmpty()) {
-            return new ResponseDto<>(false, Constants.BOOK_NOT_FOUND, null);
+            return ApiResponse.error(null, Constants.BOOK_NOT_FOUND,  request.getRequestURI());
         }
 
         bookRepository.deleteById(id);
-        return new ResponseDto<>(true, Constants.SUCCESS, null);
+        return ApiResponse.success(null, request.getRequestURI());
     }
 
+    /**
+     * Thực hiện search theo các điều kiện
+     * @param req
+     * @return Specification<Book>
+     */
+    private Specification<Book> build (BookSearchRequest req) {
+        return (root, query, criteriaBuilder) -> {
+            List<Predicate> predicates = new ArrayList<>();
+            if (StringUtils.hasText(req.getBookName())) {
+                predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("bookName")), "%" + req.getBookName() + "%"));
+            }
+
+            if (StringUtils.hasText(req.getCategoryName())) {
+                predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("categoryName")), "%" + req.getCategoryName() + "%"));
+            }
+
+            if (req.getStatus() != null) {
+                predicates.add(criteriaBuilder.equal(root.get("status"), req.getStatus()));
+            }
+
+            if (req.getMinPrice() != null) {
+                predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("price"), req.getMinPrice()));
+            }
+
+            if (req.getMaxPrice() != null) {
+                predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("price"), req.getMaxPrice()));
+            }
+
+//            predicates.add(criteriaBuilder.equal(root.get("isDeleted"), false));
+
+            return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
+        };
+    }
 
     /**
      * Convert Entity to Dto

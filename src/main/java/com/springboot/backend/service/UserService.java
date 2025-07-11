@@ -1,7 +1,6 @@
 package com.springboot.backend.service;
 
 import com.springboot.backend.dto.UserDto;
-import com.springboot.backend.entity.ResponseDto;
 import com.springboot.backend.dto.ApiResponse;
 import com.springboot.backend.payload.RegisterResponse;
 import jakarta.servlet.http.HttpServletRequest;
@@ -16,6 +15,6 @@ public interface UserService {
     ApiResponse<UserDto> getMyInfo(HttpServletRequest request);
     ApiResponse<UserDto> getUser(Long id, HttpServletRequest request);
     ApiResponse<RegisterResponse> createUser(UserDto userDto, HttpServletRequest request);
-    ResponseDto<UserDto> updateUser(UserDto userDto);
-    ResponseDto<UserDto> deleteUser(Long id);
+    ApiResponse<UserDto> updateUser(UserDto userDto, HttpServletRequest request);
+    ApiResponse<UserDto> deleteUser(Long id, HttpServletRequest request);
 }

@@ -3,12 +3,10 @@ package com.springboot.backend.config.jwt;
 import com.springboot.backend.entity.User;
 import com.springboot.backend.service.jwt.JwtService;
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
@@ -21,7 +19,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -60,13 +57,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 Claims claims = jwtService.extractAllClaims(jwt);
 
                 // Lấy danh sách role từ claims
-                String roleName = claims.get("roles", String.class);
-                List<String> roleList = List.of(roleName);
+                String roleCode = claims.get("scope", String.class);
+                List<String> roleList = List.of(roleCode);
 
                 //Custom lại role bắt đầu bằng "ROLE_"
                 //Neu dùng thư viện Oauth2 thì dùng hàm jwtAuthenticationConverter để customize lại
                 Set<GrantedAuthority> authorities = roleList.stream()
-                        .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
+                        .map(SimpleGrantedAuthority :: new) // hoac ROLE_ nếu dùng hasRole
                         .collect(Collectors.toSet());
 
                 // Tạo authentication token cho Spring Security

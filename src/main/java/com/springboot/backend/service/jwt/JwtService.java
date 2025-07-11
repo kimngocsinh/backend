@@ -41,7 +41,7 @@ public class JwtService {
                 .setSubject(user.getUsername())
                 .setIssuedAt(new Date()) // Thời điểm khởi tạo
                 .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationInMs))
-                .claim("roles", buildScope(user))
+                .claim("scope", buildScope(user)) // quyền USER/ADMIN,....
                 .signWith(getSigningKey(), SignatureAlgorithm.HS512)
                 .compact();
     }

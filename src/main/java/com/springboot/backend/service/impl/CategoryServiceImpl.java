@@ -1,11 +1,12 @@
 package com.springboot.backend.service.impl;
 
 import com.springboot.backend.config.Constants;
+import com.springboot.backend.dto.ApiResponse;
 import com.springboot.backend.dto.CategoryDto;
 import com.springboot.backend.entity.Category;
-import com.springboot.backend.entity.ResponseDto;
 import com.springboot.backend.repository.CategoryRepository;
 import com.springboot.backend.service.CategoryService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,14 +24,14 @@ public class CategoryServiceImpl implements CategoryService {
     /**
      * Get ban ghi category theo id
      * @param id
-     * @return CategoryDto
+     * @return ApiResponse<CategoryDto>
      */
     @Override
-    public ResponseDto<CategoryDto> getCategory(Long id) {
+    public ApiResponse<CategoryDto> getCategory(Long id, HttpServletRequest request) {
         Optional<Category> optional = categoryRepository.findById(id);
 
         if (optional.isEmpty()) {
-            return new ResponseDto<>(false, Constants.CATEGORY_NOT_FOUND, null);
+            return ApiResponse.error(null, Constants.CATEGORY_NOT_FOUND,  request.getRequestURI());
         }
 
         Category category = optional.get();
@@ -44,7 +45,7 @@ public class CategoryServiceImpl implements CategoryService {
         dto.setParentId(category.getParentId());
         dto.setCode(category.getCode());
 
-        return new ResponseDto<>(true, Constants.SUCCESS, dto);
+        return ApiResponse.success(dto, request.getRequestURI());
     }
 
     /**
@@ -53,7 +54,7 @@ public class CategoryServiceImpl implements CategoryService {
      * @return CategoryDto
      */
     @Override
-    public ResponseDto<CategoryDto> createCategory(CategoryDto categoryDto) {
+    public ApiResponse<CategoryDto> createCategory(CategoryDto categoryDto, HttpServletRequest request) {
         Category category = new Category();
         category.setName(categoryDto.getName());
         category.setParentId(categoryDto.getParentId());
@@ -69,19 +70,19 @@ public class CategoryServiceImpl implements CategoryService {
         result.setCreatedDate(saved.getCreatedDate());
         result.setModifiedBy(saved.getModifiedBy());
         result.setModifiedDate(saved.getModifiedDate());
-        return new ResponseDto<>(true, Constants.SUCCESS, result);
+        return ApiResponse.success(result, request.getRequestURI());
     }
 
     /**
      * Update category
      * @param categoryDto
-     * @return CategoryDto
+     * @return ApiResponse<CategoryDto>
      */
     @Override
-    public ResponseDto<CategoryDto> updateCategory(CategoryDto categoryDto) {
+    public ApiResponse<CategoryDto> updateCategory(CategoryDto categoryDto, HttpServletRequest request) {
         Optional<Category> optional = categoryRepository.findById(categoryDto.getId());
         if (optional.isEmpty()) {
-            return new ResponseDto<>(false, Constants.CATEGORY_NOT_FOUND, null);
+            return ApiResponse.error(null, Constants.CATEGORY_NOT_FOUND,  request.getRequestURI());
         }
 
         Category category = optional.get();
@@ -96,7 +97,7 @@ public class CategoryServiceImpl implements CategoryService {
         result.setModifiedDate(updated.getModifiedDate());
         result.setCreatedBy(updated.getCreatedBy());
         result.setCreatedDate(updated.getCreatedDate());
-        return new ResponseDto<>(true, Constants.SUCCESS, result);
+        return ApiResponse.success(result, request.getRequestURI());
     }
 
     /**
@@ -104,12 +105,12 @@ public class CategoryServiceImpl implements CategoryService {
      * @param id
      */
     @Override
-    public ResponseDto<Void> deleteCategory(Long id) {
+    public ApiResponse<Void> deleteCategory(Long id, HttpServletRequest request) {
         if (categoryRepository.findById(id).isEmpty()) {
-            return new ResponseDto<>(false, Constants.CATEGORY_NOT_FOUND, null);
+            return ApiResponse.error(null, Constants.CATEGORY_NOT_FOUND,  request.getRequestURI());
         }
 
         categoryRepository.deleteById(id);
-        return new ResponseDto<>(true, Constants.SUCCESS, null);
+        return ApiResponse.success(null, request.getRequestURI());
     }
 }

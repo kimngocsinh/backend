@@ -59,6 +59,12 @@ public class AuthController {
         }
     }
 
+    /**
+     * API register/ đăng ký
+     * @param UserDto
+     * @param request
+     * @return ApiResponse<RegisterResponse>
+     */
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<RegisterResponse>> createCategory(@RequestBody UserDto UserDto, HttpServletRequest request) {
         return ResponseEntity.ok(userService.createUser(UserDto, request));

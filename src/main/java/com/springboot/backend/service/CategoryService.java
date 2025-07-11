@@ -1,17 +1,18 @@
 package com.springboot.backend.service;
 
+import com.springboot.backend.dto.ApiResponse;
 import com.springboot.backend.dto.CategoryDto;
-import com.springboot.backend.entity.ResponseDto;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Service;
 
 @Service
 public interface CategoryService {
 
-    ResponseDto<CategoryDto> getCategory(Long id);
+    ApiResponse<CategoryDto> getCategory(Long id, HttpServletRequest request);
 
-    ResponseDto<CategoryDto> createCategory(CategoryDto categoryDto);
+    ApiResponse<CategoryDto> createCategory(CategoryDto categoryDto, HttpServletRequest request);
 
-    ResponseDto<CategoryDto> updateCategory(CategoryDto categoryDto);
+    ApiResponse<CategoryDto> updateCategory(CategoryDto categoryDto, HttpServletRequest request);
 
-    ResponseDto<Void> deleteCategory(Long id);
+    ApiResponse<Void> deleteCategory(Long id, HttpServletRequest request);
 }

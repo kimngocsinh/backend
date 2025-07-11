@@ -14,6 +14,7 @@ import java.io.IOException;
 @Component
 public class AuthEntryPoint implements AuthenticationEntryPoint {
 
+    //Lỗi 401 nó xảy ra trước khi request vào controller không thể xử lý  bằng @RestControllerAdvice or exceptionHandler
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response,
                          AuthenticationException authException) throws IOException, ServletException {
