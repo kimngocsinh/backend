@@ -6,6 +6,7 @@ import com.springboot.backend.dto.BookDto;
 import com.springboot.backend.dto.page.BookSearchRequest;
 import com.springboot.backend.entity.Book;
 import com.springboot.backend.entity.Category;
+import com.springboot.backend.mapper.BookMapper;
 import com.springboot.backend.repository.BookRepository;
 import com.springboot.backend.repository.CategoryRepository;
 import com.springboot.backend.service.BookService;
@@ -32,8 +33,7 @@ public class BookServiceImpl implements BookService {
 
     private final CategoryRepository categoryRepository;
 
-//    @Autowired
-//    private BookMapper bookMapper;
+    private final BookMapper bookMapper;
 
     /**
      * Thực hiện search và phân trang book
@@ -50,11 +50,7 @@ public class BookServiceImpl implements BookService {
         Specification<Book> spec = build(request);
 
         Page<Book> page = bookRepository.findAll(spec, pageable);
-        Page<BookDto> bookDtoPage = page.map(book -> {
-           BookDto  bookDto = new BookDto();
-           convertEntityToDto(book, book.getCategory(), bookDto);
-           return bookDto;
-        });
+        Page<BookDto> bookDtoPage = page.map(bookMapper::toBookDto);
         return ApiResponse.success(bookDtoPage, req.getRequestURI());
     }
 
@@ -76,8 +72,8 @@ public class BookServiceImpl implements BookService {
         if (categoryOpt.isEmpty()) {
             return ApiResponse.error(null, Constants.CATEGORY_NOT_FOUND,  request.getRequestURI());
         }
-        BookDto bookDto = new BookDto();
-        convertEntityToDto(book, categoryOpt.get(), bookDto);
+        BookDto bookDto = bookMapper.toBookDto(book);
+        bookDto.setCategoryId(book.getCategory().getId());
         return ApiResponse.success(bookDto, request.getRequestURI());
     }
 
@@ -93,13 +89,9 @@ public class BookServiceImpl implements BookService {
             return ApiResponse.error(null, Constants.CATEGORY_NOT_FOUND,  request.getRequestURI());
         }
 
-        Book book = new Book();
-        convertDtoToEntity(bookDto, book);
-
+        Book book = bookMapper.toBook(bookDto);
         Book savedBook = bookRepository.save(book);
-
-        BookDto resultDto = new BookDto();
-        convertEntityToDto(savedBook, categoryOpt.get(), resultDto);
+        BookDto resultDto = bookMapper.toBookDto(savedBook);
 
         return ApiResponse.success(resultDto, request.getRequestURI());
     }
@@ -122,10 +114,13 @@ public class BookServiceImpl implements BookService {
             return ApiResponse.error(null, Constants.CATEGORY_NOT_FOUND,  request.getRequestURI());
         }
 
-        convertDtoToEntity(bookDto, book);
-        convertEntityToDto(bookRepository.save(book), categoryOpt.get(), bookDto);
+        bookMapper.updateBookFromDto(bookDto, book);
+        book.setCategory(categoryOpt.get());
 
-        return ApiResponse.success(bookDto, request.getRequestURI());
+        Book savedBook = bookRepository.save(book);
+        BookDto resultDto = bookMapper.toBookDto(savedBook);
+
+        return ApiResponse.success(resultDto, request.getRequestURI());
     }
 
     /**
@@ -175,54 +170,5 @@ public class BookServiceImpl implements BookService {
 
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         };
-    }
-
-    /**
-     * Convert Entity to Dto
-     * @param book
-     * @param category
-     * @return BookDto
-     */
-    private void convertEntityToDto(Book book, Category category, BookDto bookDto) {
-        bookDto.setId(book.getId());
-        bookDto.setCode(book.getCode());
-        bookDto.setName(book.getName());
-        bookDto.setDescription(book.getDescription());
-        bookDto.setPublishDate(book.getPublishDate());
-        bookDto.setStatus(book.getStatus());
-        bookDto.setAmount(book.getAmount());
-        bookDto.setIsDelete(book.getIsDelete());
-        bookDto.setPrice(book.getPrice());
-        bookDto.setCategoryId(book.getCategoryId());
-        bookDto.setImage(book.getImage());
-        bookDto.setPurchasedCount(book.getPurchasedCount());
-
-        // Gán thêm thông tin từ Category
-        bookDto.setCategoryName(category.getName());
-
-        // Audit
-        bookDto.setCreatedBy(book.getCreatedBy());
-        bookDto.setCreatedDate(book.getCreatedDate());
-        bookDto.setModifiedBy(book.getModifiedBy());
-        bookDto.setModifiedDate(book.getModifiedDate());
-    }
-
-    /**
-     * conver Dto to Entity
-     * @param bookDto
-     * @return Book
-     */
-    private void convertDtoToEntity(BookDto bookDto, Book book) {
-        book.setCode(bookDto.getCode());
-        book.setName(bookDto.getName());
-        book.setDescription(bookDto.getDescription());
-        book.setPublishDate(bookDto.getPublishDate());
-        book.setStatus(bookDto.getStatus());
-        book.setAmount(bookDto.getAmount());
-        book.setIsDelete(bookDto.getIsDelete());
-        book.setPrice(bookDto.getPrice());
-        book.setCategoryId(bookDto.getCategoryId());
-        book.setImage(bookDto.getImage());
-        book.setPurchasedCount(bookDto.getPurchasedCount());
     }
 }
