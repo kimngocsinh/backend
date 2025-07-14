@@ -1,17 +1,17 @@
 package com.springboot.backend.service.impl;
 
 import com.springboot.backend.config.Constants;
+import com.springboot.backend.dto.ApiResponse;
 import com.springboot.backend.dto.UserDto;
 import com.springboot.backend.entity.Role;
 import com.springboot.backend.entity.User;
-import com.springboot.backend.dto.ApiResponse;
 import com.springboot.backend.payload.RegisterResponse;
 import com.springboot.backend.repository.RoleRepository;
 import com.springboot.backend.repository.UserRepository;
 import com.springboot.backend.service.UserService;
 import com.springboot.backend.service.jwt.JwtService;
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -23,21 +23,19 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-
+@RequiredArgsConstructor
 @Service
 public class UserServiceImpl implements UserService {
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
-    @Autowired
-    private RoleRepository roleRepository;
+    private final RoleRepository roleRepository;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
 
-    @Autowired
-    private JwtService  jwtService;
+    private final JwtService  jwtService;
+
+//    private final UserMapper userMapper;
 
     @PreAuthorize("hasRole('ADMIN')") // kiểm tra role truớc khi vào method
     @Override
@@ -62,7 +60,6 @@ public class UserServiceImpl implements UserService {
                     return dto;
                 })
                 .collect(Collectors.toList());
-
         return ApiResponse.success(users, request.getRequestURI());
     }
 
@@ -146,7 +143,7 @@ public class UserServiceImpl implements UserService {
     public ApiResponse<RegisterResponse> createUser(UserDto userDto, HttpServletRequest request) {
 
         if (userRepository.existsByUsername(userDto.getUsername())) {
-            return ApiResponse.error(null, Constants.USER_NOT_FOUND, request.getRequestURI());
+            return ApiResponse.error(null, Constants.USR_EXISTS, request.getRequestURI());
         }
         // Tạo đối tượng User từ DTO
         User user = new User();

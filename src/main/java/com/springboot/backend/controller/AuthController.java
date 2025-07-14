@@ -10,6 +10,7 @@ import com.springboot.backend.payload.RegisterResponse;
 import com.springboot.backend.service.UserService;
 import com.springboot.backend.service.jwt.JwtService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -40,7 +41,7 @@ public class AuthController {
      * @return token hoặc lỗi
      */
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest loginRequest) {
         try {
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword())
@@ -66,7 +67,7 @@ public class AuthController {
      * @return ApiResponse<RegisterResponse>
      */
     @PostMapping("/register")
-    public ResponseEntity<ApiResponse<RegisterResponse>> createCategory(@RequestBody UserDto UserDto, HttpServletRequest request) {
+    public ResponseEntity<ApiResponse<RegisterResponse>> createCategory(@Valid  @RequestBody UserDto UserDto, HttpServletRequest request) {
         return ResponseEntity.ok(userService.createUser(UserDto, request));
     }
 }
