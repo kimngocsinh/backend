@@ -19,6 +19,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -58,14 +59,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                 // Lấy danh sách role từ claims
                 String roleCode = claims.get("scope", String.class);
-                List<String> roleList = List.of(roleCode);
-
-                //Custom lại role bắt đầu bằng "ROLE_"
-                //Neu dùng thư viện Oauth2 thì dùng hàm jwtAuthenticationConverter để customize lại
-                Set<GrantedAuthority> authorities = roleList.stream()
-                        .map(SimpleGrantedAuthority :: new) // hoac ROLE_ nếu dùng hasRole
+                Set<GrantedAuthority> authorities = Arrays.stream(roleCode.split(" "))
+                        .map(String::trim)
+                        .map(SimpleGrantedAuthority::new)
                         .collect(Collectors.toSet());
-
                 // Tạo authentication token cho Spring Security
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                         userDetails, //principal

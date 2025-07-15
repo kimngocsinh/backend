@@ -4,7 +4,6 @@ import com.springboot.backend.entity.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -64,10 +63,7 @@ public class JwtService {
      * @return true nếu đã hết hạn
      */
     public boolean isTokenExpired(String token) {
-        final Date expiDate = Jwts.parserBuilder()
-                .setSigningKey(getSigningKey())
-                .build()
-                .parseClaimsJws(token).getBody().getExpiration(); // Lấy ngày hết hạn
+        final Date expiDate = extractAllClaims(token).getExpiration(); // Lấy ngày hết hạn
         return expiDate.before(new Date()); // so sánh ngày hết hạn với thời điểm hiện tại
     }
 

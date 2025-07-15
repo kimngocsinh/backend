@@ -67,7 +67,8 @@ public class AuthController {
      * @return ApiResponse<RegisterResponse>
      */
     @PostMapping("/register")
-    public ResponseEntity<ApiResponse<RegisterResponse>> createCategory(@Valid  @RequestBody UserDto UserDto, HttpServletRequest request) {
+    public ResponseEntity<ApiResponse<RegisterResponse>> register(@Valid  @RequestBody UserDto UserDto,
+                                                                  HttpServletRequest request) {
         return ResponseEntity.ok(userService.createUser(UserDto, request));
     }
 }
