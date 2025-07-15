@@ -52,7 +52,6 @@ public class UserServiceImpl implements UserService {
                     dto.setPhone(user.getPhone());
                     dto.setAddress(user.getAddress());
                     dto.setStatus(user.getStatus());
-                    dto.setRoleId(user.getRoleId());
 
                     Set<String> roleCodes = user.getRoles()
                             .stream()
@@ -87,7 +86,6 @@ public class UserServiceImpl implements UserService {
         dto.setPhone(user.getPhone());
         dto.setAddress(user.getAddress());
         dto.setStatus(user.getStatus());
-        dto.setRoleId(user.getRoleId());
 
         // Convert Set<Role> -> Set<String> (role code)
         Set<String> roleCodes = user.getRoles()
@@ -122,7 +120,6 @@ public class UserServiceImpl implements UserService {
         dto.setPhone(user.getPhone());
         dto.setAddress(user.getAddress());
         dto.setStatus(user.getStatus());
-        dto.setRoleId(user.getRoleId());
         dto.setCreatedBy(user.getCreatedBy());
         dto.setCreatedDate(user.getCreatedDate());
         dto.setModifiedBy(user.getModifiedBy());
@@ -156,7 +153,6 @@ public class UserServiceImpl implements UserService {
         user.setPhone(userDto.getPhone());
         user.setAddress(userDto.getAddress());
         user.setStatus(userDto.getStatus());
-        user.setRoleId(userDto.getRoleId());
 
         // Gán password mặc định hoặc để xử lý riêng
         String defaultPassword = "admin123";
@@ -187,7 +183,6 @@ public class UserServiceImpl implements UserService {
         responseDto.setPhone(savedUser.getPhone());
         responseDto.setAddress(savedUser.getAddress());
         responseDto.setStatus(savedUser.getStatus());
-        responseDto.setRoleId(savedUser.getRoleId());
 
         Set<String> roleCodes = savedUser.getRoles()
                 .stream()

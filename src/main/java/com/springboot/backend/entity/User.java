@@ -33,8 +33,6 @@ public class User extends BaseEntity implements UserDetails {
 
     private Integer status;
 
-    private Long roleId;
-
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.DETACH)
     @JoinTable(name = "tbl_user_roles",
             joinColumns = @JoinColumn(name = "user_id"),

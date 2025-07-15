@@ -42,7 +42,6 @@ public class DataInitializer {
                 admin.setEmail("admin@example.com");
                 admin.setPassword(passwordEncoder.encode("admin123"));
                 admin.setStatus(1);
-                admin.setRoleId(adminRole.getId());
                 admin.setRoles(Set.of(adminRole));
 
                 userRepository.save(admin);

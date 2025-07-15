@@ -31,7 +31,5 @@ public class UserDto extends BaseDto {
 
     private Integer status;
 
-    private Long roleId;
-
     private Set<String> roles;
 }
