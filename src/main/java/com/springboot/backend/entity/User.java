@@ -21,15 +21,10 @@ import java.util.stream.Collectors;
 @Table(name = "tbl_user")
 public class User extends BaseEntity implements UserDetails {
 
-    @NotBlank(message = "Username is required")
-    @Column(unique = true)
     private String username;
 
-    @NotBlank(message = "Password is required")
-    @Size(min = 8, max = 24, message = "Password must be between 8 and 24 characters")
     private String password;
 
-    @Email(message = "Email is invalid")
     private String email;
 
     private String phone;

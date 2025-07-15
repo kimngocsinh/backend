@@ -5,6 +5,7 @@ import com.springboot.backend.dto.ApiResponse;
 import com.springboot.backend.dto.UserDto;
 import com.springboot.backend.entity.Role;
 import com.springboot.backend.entity.User;
+import com.springboot.backend.dto.ApiResponse;
 import com.springboot.backend.payload.RegisterResponse;
 import com.springboot.backend.repository.RoleRepository;
 import com.springboot.backend.repository.UserRepository;
@@ -12,6 +13,7 @@ import com.springboot.backend.service.UserService;
 import com.springboot.backend.service.jwt.JwtService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -23,8 +25,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-@RequiredArgsConstructor
+
 @Service
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
@@ -60,6 +63,7 @@ public class UserServiceImpl implements UserService {
                     return dto;
                 })
                 .collect(Collectors.toList());
+
         return ApiResponse.success(users, request.getRequestURI());
     }
 
