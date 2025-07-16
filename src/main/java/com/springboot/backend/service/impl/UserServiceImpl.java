@@ -198,11 +198,19 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public ApiResponse<UserDto> updateUser(UserDto userDto, HttpServletRequest request) {
+        if (!userRepository.existsByUsername(userDto.getUsername())) {
+            return ApiResponse.error(null, Constants.USER_NOT_FOUND, request.getRequestURI());
+        }
+
         return null;
     }
 
     @Override
     public ApiResponse<UserDto> deleteUser(Long id, HttpServletRequest request) {
-        return null;
+        if (!userRepository.existsById(id)) {
+            return ApiResponse.error(null, Constants.USER_NOT_FOUND, request.getRequestURI());
+        }
+        userRepository.deleteById(id);
+        return  ApiResponse.success(null, request.getRequestURI());
     }
 }

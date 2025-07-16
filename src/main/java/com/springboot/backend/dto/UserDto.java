@@ -1,5 +1,6 @@
 package com.springboot.backend.dto;
 
+import com.springboot.backend.annotation.UniqueUsername;
 import jakarta.persistence.Column;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -16,6 +17,7 @@ public class UserDto extends BaseDto {
 
     @NotBlank(message = "Username is required")
     @Column(unique = true)
+    @UniqueUsername
     private String username;
 
     @NotBlank(message = "Password is required")
