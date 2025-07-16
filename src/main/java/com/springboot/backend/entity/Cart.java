@@ -6,7 +6,8 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Entity
-@Data
+@Setter
+@Getter
 @Table(name = "tbl_cart")
 public class Cart extends BaseEntity{
 

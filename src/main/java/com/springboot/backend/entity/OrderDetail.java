@@ -7,9 +7,9 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Entity
-@Data
+@Setter
+@Getter
 @Table(name = "tbl_order_detail")
-@EqualsAndHashCode(of = "bookId", callSuper = false) // ghi de hashcode de so sanh 2 orderDetail theo id
 public class OrderDetail extends BaseEntity {
 
     @Column(name = "order_id")

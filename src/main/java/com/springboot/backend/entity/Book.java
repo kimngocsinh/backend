@@ -9,7 +9,8 @@ import org.hibernate.annotations.Comment;
 import java.util.Date;
 
 @Entity
-@Data
+@Setter
+@Getter
 @Table(name = "tbl_book")
 public class Book extends BaseEntity{
 
