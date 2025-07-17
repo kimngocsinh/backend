@@ -1,12 +1,13 @@
 package com.springboot.backend.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.Comment;
 
-import java.util.Date;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Setter
@@ -21,10 +22,10 @@ public class Order extends BaseEntity{
     private String description;
 
     @Comment("Ngày nhận hàng")
-    private Date receivedDate;
+    private LocalDate receivedDate;
 
     @Comment("Ngày giao hàng")
-    private Date deliveryDate;
+    private LocalDate deliveryDate;
 
     @Comment("Trạng thái đơn hàng 1.Đã đặt hàng | 2.Đă vận chuyển | 3.Đang giao hàng | 4.Đã giao hàng | 5.Hủy đơn")
     private Integer statusOrder;
@@ -39,16 +40,16 @@ public class Order extends BaseEntity{
 
     private Boolean isDelete;
 
-    @Column(name = "user_id")
-    private Long userId;
-
     @Comment("1.Thanh toán khi nhận hàng || 2 Thanh toán online")
     private Integer typePay;
 
     @Comment("1.Đã thanh toán || 2.Chưa thanh toán")
-    private Integer statusPay;
+    private Integer statusPayment;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "user_id", referencedColumnName = "id", insertable = false, updatable = false, nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<OrderDetail> orderDetails = new ArrayList<>();
 }

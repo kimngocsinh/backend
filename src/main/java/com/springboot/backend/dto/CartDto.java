@@ -2,6 +2,8 @@ package com.springboot.backend.dto;
 
 import lombok.Data;
 
+import java.math.BigDecimal;
+
 @Data
 public class CartDto extends BaseDto{
 
@@ -13,13 +15,13 @@ public class CartDto extends BaseDto{
 
     private String bookName;     // từ book.name
 
-    private Double bookPrice;     // từ book.price
+    private BigDecimal bookPrice;     // từ book.price
 
     private Integer quantity;
 
     private Integer status;
 
-    private Integer price;        // transient
+    private BigDecimal totalPrice;        // transient
 
-    private Long count;
+    private Long totalItemCount;
 }

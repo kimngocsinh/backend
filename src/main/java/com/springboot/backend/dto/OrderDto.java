@@ -34,6 +34,6 @@ public class OrderDto extends BaseEntity {
 
     private Integer typePay;
 
-    private Integer statusPay;
+    private Integer statusPayment;
 
 }

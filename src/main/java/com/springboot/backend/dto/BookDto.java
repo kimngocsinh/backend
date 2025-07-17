@@ -4,6 +4,7 @@ import com.springboot.backend.entity.BaseEntity;
 import lombok.Data;
 
 import java.util.Date;
+import java.util.Set;
 
 @Data
 public class BookDto extends BaseEntity {
@@ -24,11 +25,9 @@ public class BookDto extends BaseEntity {
 
     private Double price;
 
-    private Long categoryId;
-
-    private String categoryName;  // từ quan hệ Category
-
     private String image;
 
     private Integer purchasedCount;
+
+    private Set<CategoryDto> categories;
 }

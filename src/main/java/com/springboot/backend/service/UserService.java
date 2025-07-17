@@ -15,6 +15,6 @@ public interface UserService {
     ApiResponse<UserDto> getMyInfo(HttpServletRequest request);
     ApiResponse<UserDto> getUser(Long id, HttpServletRequest request);
     ApiResponse<RegisterResponse> createUser(UserDto userDto, HttpServletRequest request);
-    ApiResponse<UserDto> updateUser(UserDto userDto, HttpServletRequest request);
+    ApiResponse<UserDto> updateUser(Long id, UserDto userDto, HttpServletRequest request);
     ApiResponse<UserDto> deleteUser(Long id, HttpServletRequest request);
 }

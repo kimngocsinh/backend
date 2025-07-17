@@ -3,11 +3,11 @@ package com.springboot.backend.controller;
 import com.springboot.backend.dto.ApiResponse;
 import com.springboot.backend.dto.BookDto;
 import com.springboot.backend.dto.page.BookSearchRequest;
+import com.springboot.backend.dto.page.PageResult;
 import com.springboot.backend.service.BookService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,8 +19,8 @@ public class BookController {
     private final BookService bookService;
 
     @PostMapping("/search")
-    public ResponseEntity<ApiResponse<Page<BookDto>>> searchBooks(@RequestBody BookSearchRequest searchRequest,
-                                                                  HttpServletRequest request) {
+    public ResponseEntity<ApiResponse<PageResult<BookDto>>> searchBooks(@RequestBody BookSearchRequest searchRequest,
+                                                                        HttpServletRequest request) {
         return ResponseEntity.ok(bookService.searchBooks(searchRequest, request));
     }
 

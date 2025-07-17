@@ -3,7 +3,10 @@ package com.springboot.backend.service.impl;
 import com.springboot.backend.config.Constants;
 import com.springboot.backend.dto.ApiResponse;
 import com.springboot.backend.dto.BookDto;
+import com.springboot.backend.dto.CategoryDto;
 import com.springboot.backend.dto.page.BookSearchRequest;
+import com.springboot.backend.dto.page.PageResult;
+import com.springboot.backend.dto.page.PaginationInfo;
 import com.springboot.backend.entity.Book;
 import com.springboot.backend.entity.Category;
 import com.springboot.backend.repository.BookRepository;
@@ -20,9 +23,8 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -41,7 +43,7 @@ public class BookServiceImpl implements BookService {
      * @return ApiResponse<Page<BookDto>>
      */
     @Override
-    public ApiResponse<Page<BookDto>> searchBooks(BookSearchRequest request, HttpServletRequest req) {
+    public ApiResponse<PageResult<BookDto>> searchBooks(BookSearchRequest request, HttpServletRequest req) {
         String sortBy = request.getSortBy();
         Sort.Direction sortOrder = Sort.Direction.fromOptionalString(request.getSortOrder()).orElse(Sort.Direction.ASC);
         Pageable pageable = PageRequest.of(request.getPage(), request.getPageSize(), Sort.by(sortOrder, sortBy));
@@ -51,10 +53,27 @@ public class BookServiceImpl implements BookService {
         Page<Book> page = bookRepository.findAll(spec, pageable);
         Page<BookDto> bookDtoPage = page.map(book -> {
            BookDto  bookDto = new BookDto();
-           convertEntityToDto(book, book.getCategory(), bookDto);
+           convertEntityToDto(book, bookDto);
            return bookDto;
         });
-        return ApiResponse.success(bookDtoPage, req.getRequestURI());
+
+        PaginationInfo pageInfo = PaginationInfo.builder()
+                .currentPage(bookDtoPage.getNumber())
+                .pageSize(bookDtoPage.getSize())
+                .totalPages(bookDtoPage.getTotalPages())
+                .totalItems((int)bookDtoPage.getTotalElements())
+                .isFirstPage(bookDtoPage.isFirst())
+                .isLastPage(bookDtoPage.isLast())
+                .sortBy(sortBy)
+                .sortOrder(sortOrder.name())
+                .build();
+
+        PageResult<BookDto> result = PageResult.<BookDto>builder()
+                .list(bookDtoPage.getContent())
+                .paginationInfo(pageInfo)
+                .build();
+
+        return ApiResponse.success(result, req.getRequestURI());
     }
 
     /**
@@ -70,13 +89,16 @@ public class BookServiceImpl implements BookService {
         }
 
         Book book = optionalBook.get();
-        Optional<Category> categoryOpt = categoryRepository.findById(book.getCategoryId());
+        List<Long> categoryIds = book.getCategories().stream().map(Category::getId).toList();
+        List<Category> categories = categoryRepository.findAllById(categoryIds);
 
-        if (categoryOpt.isEmpty()) {
+        if (categories.isEmpty() || categories.size() != categoryIds.size()) {
             return ApiResponse.error(null, Constants.CATEGORY_NOT_FOUND,  request.getRequestURI());
         }
         BookDto bookDto = new BookDto();
-        convertEntityToDto(book, categoryOpt.get(), bookDto);
+        convertEntityToDto(book, bookDto);
+        Set<CategoryDto> categoryDtos = categories.stream().map(this::createCategoryDto).collect(Collectors.toSet());
+        bookDto.setCategories(categoryDtos);
         return ApiResponse.success(bookDto, request.getRequestURI());
     }
 
@@ -87,18 +109,20 @@ public class BookServiceImpl implements BookService {
      */
     @Override
     public ApiResponse<BookDto> createBook(BookDto bookDto, HttpServletRequest request) {
-        Optional<Category> categoryOpt = categoryRepository.findById(bookDto.getCategoryId());
-        if (categoryOpt.isEmpty()) {
+        List<Long> categoryIds = bookDto.getCategories().stream().map(CategoryDto::getId).toList();
+        List<Category> categories = categoryRepository.findAllById(categoryIds);
+        if (categories.isEmpty() ||  categories.size() != categoryIds.size()) {
             return ApiResponse.error(null, Constants.CATEGORY_NOT_FOUND,  request.getRequestURI());
         }
 
         Book book = new Book();
         convertDtoToEntity(bookDto, book);
+        book.setCategories(new HashSet<>(categories));
 
         Book savedBook = bookRepository.save(book);
 
         BookDto resultDto = new BookDto();
-        convertEntityToDto(savedBook, categoryOpt.get(), resultDto);
+        convertEntityToDto(savedBook, resultDto);
 
         return ApiResponse.success(resultDto, request.getRequestURI());
     }
@@ -116,13 +140,16 @@ public class BookServiceImpl implements BookService {
         }
         Book book = optionalBook.get();
 
-        Optional<Category> categoryOpt = categoryRepository.findById(bookDto.getCategoryId());
-        if (categoryOpt.isEmpty()) {
+        List<Long> categoryIds = bookDto.getCategories().stream().map(CategoryDto::getId).toList();
+        List<Category> categories = categoryRepository.findAllById(categoryIds);
+        if (categoryIds.isEmpty() || categories.size() != categoryIds.size()) {
             return ApiResponse.error(null, Constants.CATEGORY_NOT_FOUND,  request.getRequestURI());
         }
+        Set<CategoryDto> categoryDtos = categories.stream().map(this::createCategoryDto).collect(Collectors.toSet());
 
         convertDtoToEntity(bookDto, book);
-        convertEntityToDto(bookRepository.save(book), categoryOpt.get(), bookDto);
+        bookDto.setCategories(categoryDtos);
+        convertEntityToDto(bookRepository.save(book), bookDto);
 
         return ApiResponse.success(bookDto, request.getRequestURI());
     }
@@ -179,10 +206,9 @@ public class BookServiceImpl implements BookService {
     /**
      * Convert Entity to Dto
      * @param book
-     * @param category
      * @return BookDto
      */
-    private void convertEntityToDto(Book book, Category category, BookDto bookDto) {
+    private void convertEntityToDto(Book book, BookDto bookDto) {
         bookDto.setId(book.getId());
         bookDto.setCode(book.getCode());
         bookDto.setName(book.getName());
@@ -192,12 +218,8 @@ public class BookServiceImpl implements BookService {
         bookDto.setAmount(book.getAmount());
         bookDto.setIsDelete(book.getIsDelete());
         bookDto.setPrice(book.getPrice());
-        bookDto.setCategoryId(book.getCategoryId());
         bookDto.setImage(book.getImage());
         bookDto.setPurchasedCount(book.getPurchasedCount());
-
-        // Gán thêm thông tin từ Category
-        bookDto.setCategoryName(category.getName());
 
         // Audit
         bookDto.setCreatedBy(book.getCreatedBy());
@@ -220,8 +242,24 @@ public class BookServiceImpl implements BookService {
         book.setAmount(bookDto.getAmount());
         book.setIsDelete(bookDto.getIsDelete());
         book.setPrice(bookDto.getPrice());
-        book.setCategoryId(bookDto.getCategoryId());
         book.setImage(bookDto.getImage());
         book.setPurchasedCount(bookDto.getPurchasedCount());
+    }
+
+    /**
+     * create categoryDto
+     * @param category
+     * @return CategoryDto
+     */
+    private CategoryDto createCategoryDto(Category category) {
+        CategoryDto categoryDto = new CategoryDto();
+        categoryDto.setId(category.getId());
+        categoryDto.setName(category.getName());
+        categoryDto.setParentId(category.getParentId());
+        categoryDto.setModifiedBy(category.getModifiedBy());
+        categoryDto.setModifiedDate(category.getModifiedDate());
+        categoryDto.setCreatedBy(category.getCreatedBy());
+        categoryDto.setCreatedDate(category.getCreatedDate());
+        return categoryDto;
     }
 }

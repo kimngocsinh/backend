@@ -2,21 +2,28 @@ package com.springboot.backend.service.impl;
 
 import com.springboot.backend.config.Constants;
 import com.springboot.backend.dto.ApiResponse;
+import com.springboot.backend.dto.BookDto;
 import com.springboot.backend.dto.CategoryDto;
+import com.springboot.backend.entity.Book;
 import com.springboot.backend.entity.Category;
+import com.springboot.backend.repository.BookRepository;
 import com.springboot.backend.repository.CategoryRepository;
 import com.springboot.backend.service.CategoryService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class CategoryServiceImpl implements CategoryService {
 
     private final CategoryRepository categoryRepository;
+
+    private final BookRepository bookRepository;
 
 //    private final CategoryMapper categoryMapper;
 

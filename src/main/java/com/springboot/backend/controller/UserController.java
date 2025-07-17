@@ -29,4 +29,10 @@ public class UserController {
         return ResponseEntity.ok(userService.getUser(id, request));
     }
 
+    @PutMapping("/update/{id}")
+    public ResponseEntity<ApiResponse<UserDto>> updateUser(@PathVariable Long id, @ RequestBody UserDto userDto,
+                                                           HttpServletRequest request) {
+        return ResponseEntity.ok(userService.updateUser(id, userDto, request));
+    }
+
 }

@@ -5,33 +5,29 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.math.BigDecimal;
+
 @Entity
 @Setter
 @Getter
 @Table(name = "tbl_cart")
 public class Cart extends BaseEntity{
 
-    @Column(name = "user_id")
-    private Long userId;
-
-    @Column(name = "book_id")
-    private Long bookId;
-
     private Integer quantity;
 
     private Integer status;
 
     @Transient
-    private Integer price;
+    private BigDecimal totalPrice;
 
     @Transient
-    private Long count;
+    private Long totalItemCount;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false, insertable = false, updatable = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "book_id", referencedColumnName = "id",  nullable = false, insertable = false, updatable = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "book_id", nullable = false)
     private Book book;
 }

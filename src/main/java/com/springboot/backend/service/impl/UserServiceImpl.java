@@ -44,23 +44,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public ApiResponse<List<UserDto>> getAllUser(HttpServletRequest request) {
         List<UserDto> users = userRepository.findAll().stream()
-                .map(user -> {
-                    UserDto dto = new UserDto();
-                    dto.setId(user.getId());
-                    dto.setUsername(user.getUsername());
-                    dto.setEmail(user.getEmail());
-                    dto.setPhone(user.getPhone());
-                    dto.setAddress(user.getAddress());
-                    dto.setStatus(user.getStatus());
-
-                    Set<String> roleCodes = user.getRoles()
-                            .stream()
-                            .map(Role::getCode)
-                            .collect(Collectors.toSet());
-                    dto.setRoles(roleCodes);
-
-                    return dto;
-                })
+                .map(this::convertToDto)
                 .collect(Collectors.toList());
 
         return ApiResponse.success(users, request.getRequestURI());
@@ -79,20 +63,7 @@ public class UserServiceImpl implements UserService {
         User user = userOpt.get();
 
         // Ánh xạ User -> UserDto
-        UserDto dto = new UserDto();
-        dto.setId(user.getId()); // kế thừa từ BaseDto/BaseEntity
-        dto.setUsername(user.getUsername());
-        dto.setEmail(user.getEmail());
-        dto.setPhone(user.getPhone());
-        dto.setAddress(user.getAddress());
-        dto.setStatus(user.getStatus());
-
-        // Convert Set<Role> -> Set<String> (role code)
-        Set<String> roleCodes = user.getRoles()
-                .stream()
-                .map(Role::getCode)
-                .collect(Collectors.toSet());
-        dto.setRoles(roleCodes);
+        UserDto dto = convertToDto(user);
 
         return ApiResponse.success(dto, request.getRequestURI());
     }
@@ -113,24 +84,7 @@ public class UserServiceImpl implements UserService {
         User user = userOpt.get();
 
         // Ánh xạ User -> UserDto
-        UserDto dto = new UserDto();
-        dto.setId(user.getId()); // kế thừa từ BaseDto/BaseEntity
-        dto.setUsername(user.getUsername());
-        dto.setEmail(user.getEmail());
-        dto.setPhone(user.getPhone());
-        dto.setAddress(user.getAddress());
-        dto.setStatus(user.getStatus());
-        dto.setCreatedBy(user.getCreatedBy());
-        dto.setCreatedDate(user.getCreatedDate());
-        dto.setModifiedBy(user.getModifiedBy());
-        dto.setModifiedDate(user.getModifiedDate());
-
-        // Convert Set<Role> -> Set<String> (role code)
-        Set<String> roleCodes = user.getRoles()
-                .stream()
-                .map(Role::getCode)
-                .collect(Collectors.toSet());
-        dto.setRoles(roleCodes);
+        UserDto dto = convertToDto(user);
 
         return ApiResponse.success(dto, request.getRequestURI());
     }
@@ -176,33 +130,35 @@ public class UserServiceImpl implements UserService {
 
         // Chuyển lại thành UserDto để trả về
         RegisterResponse registerResponse = new RegisterResponse();
-        UserDto responseDto = new UserDto();
-        responseDto.setId(savedUser.getId());
-        responseDto.setUsername(savedUser.getUsername());
-        responseDto.setEmail(savedUser.getEmail());
-        responseDto.setPhone(savedUser.getPhone());
-        responseDto.setAddress(savedUser.getAddress());
-        responseDto.setStatus(savedUser.getStatus());
+        UserDto dto = convertToDto(user);
 
-        Set<String> roleCodes = savedUser.getRoles()
-                .stream()
-                .map(Role::getCode)
-                .collect(Collectors.toSet());
-        responseDto.setRoles(roleCodes);
-
-        registerResponse.setUser(responseDto);
+        registerResponse.setUser(dto);
         registerResponse.setToken(token);
 
         return ApiResponse.success(registerResponse, request.getRequestURI());
     }
 
+    /**
+     * Upadte user
+     * @param userDto
+     * @param request
+     * @return ApiResponse<UserDto>
+     */
     @Override
-    public ApiResponse<UserDto> updateUser(UserDto userDto, HttpServletRequest request) {
-        if (!userRepository.existsByUsername(userDto.getUsername())) {
+    public ApiResponse<UserDto> updateUser(Long id, UserDto userDto, HttpServletRequest request) {
+        User user = userRepository.findById(id).orElse(null);
+        if (user == null) {
             return ApiResponse.error(null, Constants.USER_NOT_FOUND, request.getRequestURI());
         }
-
-        return null;
+        user.setEmail(userDto.getEmail());
+        user.setPhone(userDto.getPhone());
+        user.setEmail(userDto.getEmail());
+        user.setAddress(userDto.getAddress());
+        user.setStatus(userDto.getStatus());
+        user.setPassword(passwordEncoder.encode(userDto.getPassword()));
+        userRepository.save(user);
+        UserDto dto = convertToDto(user);
+        return ApiResponse.success(dto, request.getRequestURI());
     }
 
     @Override
@@ -211,6 +167,30 @@ public class UserServiceImpl implements UserService {
             return ApiResponse.error(null, Constants.USER_NOT_FOUND, request.getRequestURI());
         }
         userRepository.deleteById(id);
-        return  ApiResponse.success(null, request.getRequestURI());
+        return ApiResponse.success(null, request.getRequestURI());
+    }
+
+    /**
+     * Convert tu Entity sang Dto
+     * @param user
+     * @return UserDto
+     */
+    private UserDto convertToDto(User user) {
+        UserDto dto = new UserDto();
+        dto.setId(user.getId());
+        dto.setUsername(user.getUsername());
+        dto.setEmail(user.getEmail());
+        dto.setPhone(user.getPhone());
+        dto.setAddress(user.getAddress());
+        dto.setStatus(user.getStatus());
+        dto.setCreatedBy(user.getCreatedBy());
+        dto.setCreatedDate(user.getCreatedDate());
+        dto.setModifiedBy(user.getModifiedBy());
+        dto.setModifiedDate(user.getModifiedDate());
+        Set<String> setRoles = user.getRoles().stream()
+                .map(Role::getCode)
+                .collect(Collectors.toSet());
+        dto.setRoles(setRoles);
+        return dto;
     }
 }

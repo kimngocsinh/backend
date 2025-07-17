@@ -7,6 +7,7 @@ import lombok.Setter;
 import org.hibernate.annotations.Comment;
 
 import java.util.Date;
+import java.util.Set;
 
 @Entity
 @Setter
@@ -32,14 +33,13 @@ public class Book extends BaseEntity{
 
     private Double price;
 
-    @Column(name = "category_id")
-    private Long categoryId;
-
     private String image;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "category_id", referencedColumnName = "id", insertable = false, updatable = false, nullable = false)
-    private Category category;
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "tbl_category_book",
+            joinColumns = @JoinColumn(name = "book_id"),
+            inverseJoinColumns = @JoinColumn(name = "category_id"))
+    private Set<Category> categories;
 
     @Comment("Số lượng đã mua")
     private Integer purchasedCount;

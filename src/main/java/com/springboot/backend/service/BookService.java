@@ -3,6 +3,7 @@ package com.springboot.backend.service;
 import com.springboot.backend.dto.ApiResponse;
 import com.springboot.backend.dto.BookDto;
 import com.springboot.backend.dto.page.BookSearchRequest;
+import com.springboot.backend.dto.page.PageResult;
 import com.springboot.backend.entity.Book;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.data.domain.Page;
@@ -13,7 +14,7 @@ import org.springframework.stereotype.Service;
 @Service
 public interface BookService {
 
-    ApiResponse<Page<BookDto>> searchBooks(BookSearchRequest request, HttpServletRequest req);
+    ApiResponse<PageResult<BookDto>> searchBooks(BookSearchRequest request, HttpServletRequest req);
 
     ApiResponse<BookDto> getBook (long id, HttpServletRequest request);
 
