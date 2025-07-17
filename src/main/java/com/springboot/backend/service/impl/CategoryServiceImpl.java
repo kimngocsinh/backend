@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -34,22 +35,17 @@ public class CategoryServiceImpl implements CategoryService {
      */
     @Override
     public ApiResponse<CategoryDto> getCategory(Long id, HttpServletRequest request) {
-        Optional<Category> optional = categoryRepository.findById(id);
+        Category category = categoryRepository.findById(id).orElse(null);
 
-        if (optional.isEmpty()) {
+        if (category == null) {
             return ApiResponse.error(null, Constants.CATEGORY_NOT_FOUND,  request.getRequestURI());
         }
 
-        Category category = optional.get();
-        CategoryDto dto = new CategoryDto();
-        dto.setId(category.getId());
-        dto.setCreatedBy(category.getCreatedBy());
-        dto.setCreatedDate(category.getCreatedDate());
-        dto.setModifiedBy(category.getModifiedBy());
-        dto.setModifiedDate(category.getModifiedDate());
-        dto.setName(category.getName());
-        dto.setParentId(category.getParentId());
-        dto.setCode(category.getCode());
+        List<Book> books = bookRepository.findBooksByCategoryId(category.getId());
+        Set<BookDto> bookDtos = books.stream().map(this::createBookDto).collect(Collectors.toSet());
+
+        CategoryDto dto = convertToCategoryDto(category);
+        dto.setBooks(bookDtos);
 
         return ApiResponse.success(dto, request.getRequestURI());
     }
@@ -61,21 +57,10 @@ public class CategoryServiceImpl implements CategoryService {
      */
     @Override
     public ApiResponse<CategoryDto> createCategory(CategoryDto categoryDto, HttpServletRequest request) {
-        Category category = new Category();
-        category.setName(categoryDto.getName());
-        category.setParentId(categoryDto.getParentId());
-        category.setCode(categoryDto.getCode());
+        Category category = convertToCategory(categoryDto);
         Category saved = categoryRepository.save(category);
 
-        CategoryDto result = new CategoryDto();
-        result.setId(saved.getId());
-        result.setName(saved.getName());
-        result.setParentId(saved.getParentId());
-        result.setCode(saved.getCode());
-        result.setCreatedBy(saved.getCreatedBy());
-        result.setCreatedDate(saved.getCreatedDate());
-        result.setModifiedBy(saved.getModifiedBy());
-        result.setModifiedDate(saved.getModifiedDate());
+        CategoryDto result = convertToCategoryDto(saved);
         return ApiResponse.success(result, request.getRequestURI());
     }
 
@@ -92,17 +77,12 @@ public class CategoryServiceImpl implements CategoryService {
         }
 
         Category category = optional.get();
-        CategoryDto result = new CategoryDto();
+        category.setName(categoryDto.getName());
+        category.setParentId(categoryDto.getParentId());
+        category.setCode(categoryDto.getCode());
         Category updated = categoryRepository.save(category);
 
-        result.setId(updated.getId());
-        result.setName(updated.getName());
-        result.setCode(updated.getCode());
-        result.setParentId(updated.getParentId());
-        result.setModifiedBy(updated.getModifiedBy());
-        result.setModifiedDate(updated.getModifiedDate());
-        result.setCreatedBy(updated.getCreatedBy());
-        result.setCreatedDate(updated.getCreatedDate());
+        CategoryDto result = convertToCategoryDto(updated);
         return ApiResponse.success(result, request.getRequestURI());
     }
 
@@ -118,5 +98,58 @@ public class CategoryServiceImpl implements CategoryService {
 
         categoryRepository.deleteById(id);
         return ApiResponse.success(null, request.getRequestURI());
+    }
+
+    /**
+     * Chuyen tư Entity -> Dto // không gán lại category vì getcategoy lại gán lai category sẽ bị lặp
+     * @param book
+     * @return BookDto
+     */
+    private BookDto createBookDto(Book book) {
+        BookDto bookDto = new BookDto();
+        bookDto.setId(book.getId());
+        bookDto.setCode(book.getCode());
+        bookDto.setName(book.getName());
+        bookDto.setDescription(book.getDescription());
+        bookDto.setPublishDate(book.getPublishDate());
+        bookDto.setStatus(book.getStatus());
+        bookDto.setAmount(book.getAmount());
+        bookDto.setIsDelete(book.getIsDelete());
+        bookDto.setPrice(book.getPrice());
+        bookDto.setImage(book.getImage());
+        bookDto.setPurchasedCount(book.getPurchasedCount());
+
+        // Audit
+        bookDto.setCreatedBy(book.getCreatedBy());
+        bookDto.setCreatedDate(book.getCreatedDate());
+        bookDto.setModifiedBy(book.getModifiedBy());
+        bookDto.setModifiedDate(book.getModifiedDate());
+        return bookDto;
+    }
+
+    /**
+     * Convert entity to Dto
+     * @param category
+     * @return CategoryDto
+     */
+    private CategoryDto convertToCategoryDto(Category category) {
+        CategoryDto dto = new CategoryDto();
+        dto.setId(category.getId());
+        dto.setCreatedBy(category.getCreatedBy());
+        dto.setCreatedDate(category.getCreatedDate());
+        dto.setModifiedBy(category.getModifiedBy());
+        dto.setModifiedDate(category.getModifiedDate());
+        dto.setName(category.getName());
+        dto.setParentId(category.getParentId());
+        dto.setCode(category.getCode());
+        return dto;
+    }
+
+    private Category convertToCategory(CategoryDto categoryDto) {
+        Category category = new Category();
+        category.setName(categoryDto.getName());
+        category.setParentId(categoryDto.getParentId());
+        category.setCode(categoryDto.getCode());
+        return category;
     }
 }
