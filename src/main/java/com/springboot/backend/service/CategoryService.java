@@ -1,6 +1,6 @@
 package com.springboot.backend.service;
 
-import com.springboot.backend.dto.ApiResponse;
+import com.springboot.backend.dto.response.ApiResponse;
 import com.springboot.backend.dto.CategoryDto;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Service;

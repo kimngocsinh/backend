@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.Comment;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.Set;
 
@@ -31,7 +32,7 @@ public class Book extends BaseEntity{
 
     private Boolean isDelete;
 
-    private Double price;
+    private BigDecimal price;
 
     private String image;
 

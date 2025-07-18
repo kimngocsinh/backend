@@ -1,7 +1,7 @@
 package com.springboot.backend.service.impl;
 
 import com.springboot.backend.config.Constants;
-import com.springboot.backend.dto.ApiResponse;
+import com.springboot.backend.dto.response.ApiResponse;
 import com.springboot.backend.dto.BookDto;
 import com.springboot.backend.dto.CategoryDto;
 import com.springboot.backend.entity.Book;

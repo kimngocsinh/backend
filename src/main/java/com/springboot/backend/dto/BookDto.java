@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.springboot.backend.entity.BaseEntity;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.Set;
 
@@ -25,7 +26,7 @@ public class BookDto extends BaseEntity {
 
     private Boolean isDelete;
 
-    private Double price;
+    private BigDecimal price;
 
     private String image;
 

@@ -1,14 +1,10 @@
 package com.springboot.backend.service;
 
-import com.springboot.backend.dto.ApiResponse;
+import com.springboot.backend.dto.response.ApiResponse;
 import com.springboot.backend.dto.BookDto;
-import com.springboot.backend.dto.page.BookSearchRequest;
-import com.springboot.backend.dto.page.PageResult;
-import com.springboot.backend.entity.Book;
+import com.springboot.backend.dto.request.BookSearchRequest;
+import com.springboot.backend.dto.response.PageResult;
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 @Service

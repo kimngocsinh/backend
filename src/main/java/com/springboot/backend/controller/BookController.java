@@ -1,13 +1,12 @@
 package com.springboot.backend.controller;
 
-import com.springboot.backend.dto.ApiResponse;
+import com.springboot.backend.dto.response.ApiResponse;
 import com.springboot.backend.dto.BookDto;
-import com.springboot.backend.dto.page.BookSearchRequest;
-import com.springboot.backend.dto.page.PageResult;
+import com.springboot.backend.dto.request.BookSearchRequest;
+import com.springboot.backend.dto.response.PageResult;
 import com.springboot.backend.service.BookService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

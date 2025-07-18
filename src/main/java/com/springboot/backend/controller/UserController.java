@@ -1,7 +1,7 @@
 package com.springboot.backend.controller;
 
 import com.springboot.backend.dto.UserDto;
-import com.springboot.backend.dto.ApiResponse;
+import com.springboot.backend.dto.response.ApiResponse;
 import com.springboot.backend.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;

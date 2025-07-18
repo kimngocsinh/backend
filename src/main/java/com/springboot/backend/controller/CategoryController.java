@@ -1,6 +1,6 @@
 package com.springboot.backend.controller;
 
-import com.springboot.backend.dto.ApiResponse;
+import com.springboot.backend.dto.response.ApiResponse;
 import com.springboot.backend.dto.CategoryDto;
 import com.springboot.backend.service.CategoryService;
 import jakarta.servlet.http.HttpServletRequest;

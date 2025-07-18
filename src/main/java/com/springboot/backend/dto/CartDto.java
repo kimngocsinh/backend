@@ -11,19 +11,17 @@ public class CartDto extends BaseDto{
 
     private Long userId;
 
-    private String username;      // từ user.username
+    private String username;
 
     private Long bookId;
 
-    private String bookName;     // từ book.name
+    private String bookName;
 
-    private BigDecimal bookPrice;     // từ book.price
+    private BigDecimal bookPrice;
 
     private Integer quantity;
 
     private Integer status;
 
-    private BigDecimal totalPrice;        // transient
-
-    private Long totalItemCount;
+    private BigDecimal totalPrice;
 }

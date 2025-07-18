@@ -1,12 +1,12 @@
 package com.springboot.backend.service.impl;
 
 import com.springboot.backend.config.Constants;
-import com.springboot.backend.dto.ApiResponse;
+import com.springboot.backend.dto.response.ApiResponse;
 import com.springboot.backend.dto.BookDto;
 import com.springboot.backend.dto.CategoryDto;
-import com.springboot.backend.dto.page.BookSearchRequest;
-import com.springboot.backend.dto.page.PageResult;
-import com.springboot.backend.dto.page.PaginationInfo;
+import com.springboot.backend.dto.request.BookSearchRequest;
+import com.springboot.backend.dto.response.PageResult;
+import com.springboot.backend.dto.response.PaginationInfo;
 import com.springboot.backend.entity.Book;
 import com.springboot.backend.entity.Category;
 import com.springboot.backend.repository.BookRepository;
