@@ -1,6 +1,6 @@
 package com.springboot.backend.dto;
 
-import com.springboot.backend.annotation.UniqueUsername;
+import com.springboot.backend.validator.UniqueUsername;
 import jakarta.persistence.Column;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

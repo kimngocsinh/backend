@@ -1,6 +1,5 @@
 package com.springboot.backend.validator;
 
-import com.springboot.backend.annotation.UniqueUsername;
 import com.springboot.backend.repository.UserRepository;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;

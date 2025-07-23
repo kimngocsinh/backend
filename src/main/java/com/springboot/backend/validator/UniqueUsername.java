@@ -1,6 +1,5 @@
-package com.springboot.backend.annotation;
+package com.springboot.backend.validator;
 
-import com.springboot.backend.validator.UniqueUsernameValidator;
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
 
