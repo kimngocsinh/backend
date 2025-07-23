@@ -11,6 +11,7 @@ import com.springboot.backend.repository.CategoryRepository;
 import com.springboot.backend.service.CategoryService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -38,7 +39,7 @@ public class CategoryServiceImpl implements CategoryService {
         Category category = categoryRepository.findById(id).orElse(null);
 
         if (category == null) {
-            return ApiResponse.error(null, Constants.CATEGORY_NOT_FOUND,  request.getRequestURI());
+            return ApiResponse.error(HttpStatus.NOT_FOUND.value(), Constants.CATEGORY_NOT_FOUND,  request.getRequestURI());
         }
 
         List<Book> books = bookRepository.findBooksByCategoryId(category.getId());
@@ -73,7 +74,7 @@ public class CategoryServiceImpl implements CategoryService {
     public ApiResponse<CategoryDto> updateCategory(CategoryDto categoryDto, HttpServletRequest request) {
         Optional<Category> optional = categoryRepository.findById(categoryDto.getId());
         if (optional.isEmpty()) {
-            return ApiResponse.error(null, Constants.CATEGORY_NOT_FOUND,  request.getRequestURI());
+            return ApiResponse.error(HttpStatus.NOT_FOUND.value(), Constants.CATEGORY_NOT_FOUND,  request.getRequestURI());
         }
 
         Category category = optional.get();
@@ -93,7 +94,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public ApiResponse<Void> deleteCategory(Long id, HttpServletRequest request) {
         if (categoryRepository.findById(id).isEmpty()) {
-            return ApiResponse.error(null, Constants.CATEGORY_NOT_FOUND,  request.getRequestURI());
+            return ApiResponse.error(HttpStatus.NOT_FOUND.value(), Constants.CATEGORY_NOT_FOUND,  request.getRequestURI());
         }
 
         categoryRepository.deleteById(id);

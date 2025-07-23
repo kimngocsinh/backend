@@ -3,6 +3,7 @@ package com.springboot.backend.exception;
 import com.springboot.backend.dto.response.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -28,7 +29,7 @@ public class GlobalExceptionHandler {
                     .findFirst()
                     .orElse("Error Validation");
             return ResponseEntity.badRequest().body(
-                    ApiResponse.error("400", request.getRequestURI(), errorMessage)
+                    ApiResponse.error(HttpStatus.BAD_REQUEST.value(), request.getRequestURI(), errorMessage)
             );
     }
 }

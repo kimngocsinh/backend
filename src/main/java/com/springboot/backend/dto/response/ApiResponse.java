@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.http.HttpStatus;
 
 import java.time.LocalDateTime;
 
@@ -18,14 +19,14 @@ public class ApiResponse<T> {
     private boolean success;
     private String message;
     private T data;
-    private String status;
+    private Integer status;
     private String path;
     private LocalDateTime timestamp;
 
     public static <T> ApiResponse<T> success(T data, String path) {
         return ApiResponse.<T>builder()
                 .success(true)
-                .status("200")
+                .status(HttpStatus.OK.value())
                 .message(Constants.SUCCESS)
                 .path(path)
                 .data(data)
@@ -33,7 +34,7 @@ public class ApiResponse<T> {
                 .build();
     }
 
-    public static <T> ApiResponse<T> error (String status, String message, String path) {
+    public static <T> ApiResponse<T> error (Integer status, String message, String path) {
         return ApiResponse.<T>builder()
                 .success(false)
                 .status(status)

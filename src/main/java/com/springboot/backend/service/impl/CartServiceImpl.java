@@ -13,6 +13,7 @@ import com.springboot.backend.repository.CartRepository;
 import com.springboot.backend.service.CartService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -39,7 +40,7 @@ public class CartServiceImpl implements CartService {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || authentication instanceof AnonymousAuthenticationToken) {
-            return ApiResponse.error(null, Constants.USER_NOT_LOGIN, req.getRequestURI());
+            return ApiResponse.error(HttpStatus.BAD_REQUEST.value(), Constants.USER_NOT_LOGIN, req.getRequestURI());
         }
         User user = (User) authentication.getPrincipal();
         List<Cart> carts = cartRepository.findByUserIdAndStatus(user.getId(), 1);
@@ -85,7 +86,7 @@ public class CartServiceImpl implements CartService {
     public ApiResponse<Void> deleteCart(Long id, HttpServletRequest req) {
         Cart cart = cartRepository.findById(id).orElse(null);
         if (cart == null) {
-            return ApiResponse.error(null, Constants.CART_NOT_FOUND,  req.getRequestURI());
+            return ApiResponse.error(HttpStatus.NOT_FOUND.value(), Constants.CART_NOT_FOUND,  req.getRequestURI());
         }
         cartRepository.delete(cart);
         return ApiResponse.success(null, req.getRequestURI());
@@ -101,12 +102,12 @@ public class CartServiceImpl implements CartService {
     public ApiResponse<CartDto> addToCart(CartRequest cartRequest, HttpServletRequest req) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || authentication instanceof AnonymousAuthenticationToken) {
-            return ApiResponse.error(null, Constants.USER_NOT_LOGIN, req.getRequestURI());
+            return ApiResponse.error(HttpStatus.BAD_REQUEST.value(), Constants.USER_NOT_LOGIN, req.getRequestURI());
         }
         User user = (User) authentication.getPrincipal();
         Book book = bookRepository.findById(cartRequest.getBookId()).orElse(null);
         if (book == null) {
-            return ApiResponse.error(null, Constants.BOOK_NOT_FOUND,  req.getRequestURI());
+            return ApiResponse.error(HttpStatus.NOT_FOUND.value(), Constants.BOOK_NOT_FOUND,  req.getRequestURI());
         }
         Cart cart = cartRepository.findByUserIdAndBookIdAndStatus(user.getId(), book.getId(), 1).orElse(null);
         if (cart != null) {

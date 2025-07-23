@@ -20,6 +20,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -85,7 +86,7 @@ public class BookServiceImpl implements BookService {
     public ApiResponse<BookDto> getBook(long id, HttpServletRequest request) {
         Optional<Book> optionalBook = bookRepository.findById(id);
         if (optionalBook.isEmpty()) {
-            return ApiResponse.error(null, Constants.BOOK_NOT_FOUND,  request.getRequestURI());
+            return ApiResponse.error(HttpStatus.NOT_FOUND.value(), Constants.BOOK_NOT_FOUND,  request.getRequestURI());
         }
 
         Book book = optionalBook.get();
@@ -93,7 +94,7 @@ public class BookServiceImpl implements BookService {
         List<Category> categories = categoryRepository.findAllById(categoryIds);
 
         if (categories.isEmpty() || categories.size() != categoryIds.size()) {
-            return ApiResponse.error(null, Constants.CATEGORY_NOT_FOUND,  request.getRequestURI());
+            return ApiResponse.error(HttpStatus.NOT_FOUND.value(), Constants.CATEGORY_NOT_FOUND,  request.getRequestURI());
         }
         BookDto bookDto = new BookDto();
         convertEntityToDto(book, bookDto);
@@ -112,7 +113,7 @@ public class BookServiceImpl implements BookService {
         List<Long> categoryIds = bookDto.getCategories().stream().map(CategoryDto::getId).toList();
         List<Category> categories = categoryRepository.findAllById(categoryIds);
         if (categories.isEmpty() ||  categories.size() != categoryIds.size()) {
-            return ApiResponse.error(null, Constants.CATEGORY_NOT_FOUND,  request.getRequestURI());
+            return ApiResponse.error(HttpStatus.NOT_FOUND.value(), Constants.CATEGORY_NOT_FOUND,  request.getRequestURI());
         }
 
         Book book = new Book();
@@ -136,14 +137,14 @@ public class BookServiceImpl implements BookService {
     public ApiResponse<BookDto> updateBook(BookDto bookDto, HttpServletRequest request) {
         Optional<Book> optionalBook = bookRepository.findById(bookDto.getId());
         if (optionalBook.isEmpty()) {
-            return ApiResponse.error(null, Constants.BOOK_NOT_FOUND,  request.getRequestURI());
+            return ApiResponse.error(HttpStatus.NOT_FOUND.value(), Constants.BOOK_NOT_FOUND,  request.getRequestURI());
         }
         Book book = optionalBook.get();
 
         List<Long> categoryIds = bookDto.getCategories().stream().map(CategoryDto::getId).toList();
         List<Category> categories = categoryRepository.findAllById(categoryIds);
         if (categoryIds.isEmpty() || categories.size() != categoryIds.size()) {
-            return ApiResponse.error(null, Constants.CATEGORY_NOT_FOUND,  request.getRequestURI());
+            return ApiResponse.error(HttpStatus.NOT_FOUND.value(), Constants.CATEGORY_NOT_FOUND,  request.getRequestURI());
         }
         Set<CategoryDto> categoryDtos = categories.stream().map(this::createCategoryDto).collect(Collectors.toSet());
 
@@ -162,7 +163,7 @@ public class BookServiceImpl implements BookService {
     @Override
     public ApiResponse<Void> deleteBook(long id, HttpServletRequest  request) {
         if (bookRepository.findById(id).isEmpty()) {
-            return ApiResponse.error(null, Constants.BOOK_NOT_FOUND,  request.getRequestURI());
+            return ApiResponse.error(HttpStatus.NOT_FOUND.value(), Constants.BOOK_NOT_FOUND,  request.getRequestURI());
         }
 
         bookRepository.deleteById(id);

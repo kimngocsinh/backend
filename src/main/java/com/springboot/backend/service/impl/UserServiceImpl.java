@@ -12,6 +12,7 @@ import com.springboot.backend.service.UserService;
 import com.springboot.backend.service.jwt.JwtService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -55,7 +56,7 @@ public class UserServiceImpl implements UserService {
         String name = securityContext.getAuthentication().getName();
         Optional<User> userOpt = userRepository.findByUsername(name);
         if (userOpt.isEmpty()) {
-            return ApiResponse.error(null, Constants.USER_NOT_FOUND, request.getRequestURI());
+            return ApiResponse.error(HttpStatus.NOT_FOUND.value(), Constants.USER_NOT_FOUND, request.getRequestURI());
         }
 
         User user = userOpt.get();
@@ -76,7 +77,7 @@ public class UserServiceImpl implements UserService {
     public ApiResponse<UserDto> getUser(Long id, HttpServletRequest request) {
         Optional<User> userOpt = userRepository.findById(id);
         if (userOpt.isEmpty()) {
-            return ApiResponse.error(null, Constants.USER_NOT_FOUND, request.getRequestURI());
+            return ApiResponse.error(HttpStatus.NOT_FOUND.value(), Constants.USER_NOT_FOUND, request.getRequestURI());
         }
 
         User user = userOpt.get();
@@ -96,7 +97,7 @@ public class UserServiceImpl implements UserService {
     public ApiResponse<RegisterResponse> createUser(UserDto userDto, HttpServletRequest request) {
 
         if (userRepository.existsByUsername(userDto.getUsername())) {
-            return ApiResponse.error(null, Constants.USR_EXISTS, request.getRequestURI());
+            return ApiResponse.error(HttpStatus.BAD_REQUEST.value(), Constants.USR_EXISTS, request.getRequestURI());
         }
         // Tạo đối tượng User từ DTO
         User user = new User();
@@ -146,7 +147,7 @@ public class UserServiceImpl implements UserService {
     public ApiResponse<UserDto> updateUser(Long id, UserDto userDto, HttpServletRequest request) {
         User user = userRepository.findById(id).orElse(null);
         if (user == null) {
-            return ApiResponse.error(null, Constants.USER_NOT_FOUND, request.getRequestURI());
+            return ApiResponse.error(HttpStatus.BAD_REQUEST.value(), Constants.USER_NOT_FOUND, request.getRequestURI());
         }
         user.setEmail(userDto.getEmail());
         user.setPhone(userDto.getPhone());
@@ -162,7 +163,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public ApiResponse<UserDto> deleteUser(Long id, HttpServletRequest request) {
         if (!userRepository.existsById(id)) {
-            return ApiResponse.error(null, Constants.USER_NOT_FOUND, request.getRequestURI());
+            return ApiResponse.error(HttpStatus.NOT_FOUND.value(), Constants.USER_NOT_FOUND, request.getRequestURI());
         }
         userRepository.deleteById(id);
         return ApiResponse.success(null, request.getRequestURI());
