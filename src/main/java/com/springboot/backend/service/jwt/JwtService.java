@@ -12,6 +12,7 @@ import org.springframework.util.CollectionUtils;
 import java.security.Key;
 import java.util.Date;
 import java.util.StringJoiner;
+import java.util.UUID;
 
 @Service
 public class JwtService {
@@ -37,6 +38,7 @@ public class JwtService {
      */
     public String generateToken(User user) {
         return Jwts.builder()
+                .setId(UUID.randomUUID().toString()) // gán id cho token
                 .setSubject(user.getUsername())
                 .setIssuedAt(new Date()) // Thời điểm khởi tạo
                 .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationInMs))
